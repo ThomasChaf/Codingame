@@ -1,4 +1,4 @@
-import { Graph } from "./Board/Graph";
+import { Graph } from "./board/Graph";
 import { Position, asKey } from "./Position";
 import { Store } from "./pacmans/APacman";
 import { Pacman } from "./pacmans/Pacman";
@@ -41,6 +41,10 @@ export class Game {
   }
 
   public play() {
-    Object.values(this.myPacman).forEach((pac) => pac.play(this.graph));
+    Object.values(this.enemies).forEach((pac) => pac.willPlay(this.graph));
+
+    Object.values(this.myPacman).forEach((pac) => pac.willPlay(this.graph));
+
+    Object.values(this.myPacman).forEach((pac) => pac.play());
   }
 }

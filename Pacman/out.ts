@@ -117,19 +117,49 @@ class Graph {
 }
 
 
-abstract class APacman {
-  constructor(protected id: number, protected position: Position) {}
 
-  setPosition = (position: Position) => (this.position = position);
-  getPosition = (): Position => this.position;
+enum EStrategyType {
+  UNDEFINED,
+  COLLECTOR,
+  WAITOR,
 }
 
-type Store<T> = {
-  [key: string]: T;
+enum EStrategyAvancement {
+  IN_PROGRESS,
+  COMPLETED,
+}
+
+enum ActionType {
+  MOVE = "MOVE",
+}
+
+type Action = {
+  type: ActionType;
+  param: any;
 };
 
+abstract class AStrategy {
+  protected avancement: EStrategyAvancement = EStrategyAvancement.IN_PROGRESS;
 
-class Enemy extends APacman {}
+  abstract computeAction(pacman: Pacman): Action;
+
+  abstract computeRound(pacman: Pacman, graph: Graph): void;
+}
+
+
+
+
+
+
+class StrategyDefiner {
+  private state: EStrategyType = EStrategyType.UNDEFINED;
+
+  select = (pacman: Pacman, graph: Graph): AStrategy => {
+    this.state = EStrategyType.COLLECTOR;
+    return new CollectorStrategy(pacman, graph);
+  };
+}
+
 
 
 
@@ -148,53 +178,130 @@ type Todo = {
   nexts: string[];
 };
 
-const parcours = (graph: Graph, start: Position): Position => {
-  const done: Done = {};
-  let todos: Todo[] = [
-    {
-      current: 0,
-      nexts: graph.get(start).edges,
-    },
-  ];
-  let depth = 1;
+class CollectorStrategy extends AStrategy {
+  private goal: Position;
 
-  while (depth < 15) {
-    let nextTodos: Todo[] = [];
-    todos.forEach((todo) => {
-      todo.nexts.forEach((next) => {
-        const node = graph.getByKey(next);
-        const total = todo.current + node.value;
-
-        done[node.position.asKey()] = total;
-
-        nextTodos.push({
-          current: total,
-          nexts: node.edges.filter((edge) => !done[edge]),
-        });
-      });
-    });
-    todos = nextTodos;
-    depth += 1;
+  constructor(pacman: Pacman, graph: Graph) {
+    super();
+    this.goal = this.parcours(graph, pacman.getPosition());
   }
 
-  const result = Object.keys(done).reduce((acc, key): Result => {
-    if (!acc || done[key] > acc.value) {
-      return {
-        value: done[key],
-        position: graph.getByKey(key).position,
-      };
+  parcours(graph: Graph, start: Position): Position {
+    const done: Done = {};
+    let todos: Todo[] = [
+      {
+        current: 0,
+        nexts: graph.get(start).edges,
+      },
+    ];
+    let depth = 1;
+
+    while (depth < 15) {
+      let nextTodos: Todo[] = [];
+      todos.forEach((todo) => {
+        todo.nexts.forEach((next) => {
+          if (done[next] >= 0) return;
+
+          const node = graph.getByKey(next);
+          const total = todo.current + node.value - depth / 5;
+
+          done[node.position.asKey()] = total;
+
+          nextTodos.push({
+            current: total,
+            nexts: node.edges,
+          });
+        });
+      });
+      todos = nextTodos;
+      depth += 1;
     }
-    return acc;
-  }, null as Result);
-  if (!result) return new Position(10, 15);
-  return result.position;
+
+    const result = Object.keys(done).reduce((acc, key): Result => {
+      if (!acc || done[key] > acc.value) {
+        return {
+          value: done[key],
+          position: graph.getByKey(key).position,
+        };
+      }
+      return acc;
+    }, null as Result);
+    if (!result) return new Position(10, 15);
+
+    console.error("DEBUG:", "NEW GOAL:", result.position.asKey(), result.value);
+
+    return result.position;
+  }
+
+  computeRound(pacman: Pacman, graph: Graph) {
+    if (pacman.getPosition().sameAs(this.goal)) {
+      this.avancement = EStrategyAvancement.COMPLETED;
+    }
+
+    if (this.avancement === EStrategyAvancement.COMPLETED) {
+      this.goal = this.parcours(graph, pacman.getPosition());
+      this.avancement = EStrategyAvancement.IN_PROGRESS;
+    }
+  }
+
+  computeAction = (pacman: Pacman): Action => {
+    return {
+      type: ActionType.MOVE,
+      param: {
+        id: pacman.id,
+        goal: this.goal,
+      },
+    };
+  };
+}
+
+
+abstract class APacman {
+  constructor(public id: number, protected position: Position) {}
+
+  setPosition = (position: Position) => (this.position = position);
+  getPosition = (): Position => this.position;
+}
+
+type Store<T> = {
+  [key: string]: T;
+};
+
+
+class Enemy extends APacman {
+  willPlay(graph: Graph) {
+    graph.updateNode(this.getPosition().asKey(), 0);
+  }
+}
+
+
+
+
+
+
+const ACTIONS = {
+  [ActionType.MOVE]: ({ id, goal }: any) => console.log(`${ActionType.MOVE} ${id} ${goal.x} ${goal.y}`),
 };
 
 class Pacman extends APacman {
-  play(graph: Graph) {
-    const bestPosition = parcours(graph, this.position);
+  private strategy: AStrategy | null = null;
+  private strategyDefiner: StrategyDefiner = new StrategyDefiner();
 
-    console.log(`MOVE ${this.id} ${bestPosition.x} ${bestPosition.y}`);
+  willPlay(graph: Graph) {
+    graph.updateNode(this.getPosition().asKey(), 0);
+
+    if (!this.strategy) {
+      this.strategy = this.strategyDefiner.select(this, graph);
+    }
+    this.strategy.computeRound(this, graph);
+  }
+
+  play() {
+    if (!this.strategy) throw new Error("No strategy defined");
+
+    const action: Action = this.strategy.computeAction(this);
+
+    ACTIONS[action.type](action.param);
   }
 }
 
@@ -240,7 +347,11 @@ class Game {
   }
 
   public play() {
-    Object.values(this.myPacman).forEach((pac) => pac.play(this.graph));
+    Object.values(this.enemies).forEach((pac) => pac.willPlay(this.graph));
+
+    Object.values(this.myPacman).forEach((pac) => pac.willPlay(this.graph));
+
+    Object.values(this.myPacman).forEach((pac) => pac.play());
   }
 }
 enum EItem {
@@ -260,23 +371,36 @@ class Position {
     this.y = y;
   }
 
-  asKey() {
+  asKey(): string {
     return asKey(this.x, this.y);
+  }
+
+  sameAs(p: Position | null): boolean {
+    if (!p) return false;
+
+    return p.x === this.x && p.y === this.y;
   }
 }
 // ======================================================================================================
 
+const debugreadline = (): string => {
+  const line = readline();
+
+  // console.error(line);
+  return line;
+};
 
 
 
 
-var inputs: string[] = readline().split(" ");
+
+var inputs: string[] = debugreadline().split(" ");
 const width: number = parseInt(inputs[0]);
 const height: number = parseInt(inputs[1]);
 const board = new Factory(width, height);
 
 for (let y = 0; y < height; y++) {
-  board.addRow(readline());
+  board.addRow(debugreadline());
 }
 
 const graph = board.constructGraph();
@@ -286,13 +410,13 @@ const graph = board.constructGraph();
 const game = new Game(graph);
 
 while (true) {
-  var inputs: string[] = readline().split(" ");
+  var inputs: string[] = debugreadline().split(" ");
   const myScore: number = parseInt(inputs[0]);
   const opponentScore: number = parseInt(inputs[1]);
-  const visiblePacCount: number = parseInt(readline()); // all your pacs and enemy pacs in sight
+  const visiblePacCount: number = parseInt(debugreadline()); // all your pacs and enemy pacs in sight
 
   for (let i = 0; i < visiblePacCount; i++) {
-    var inputs: string[] = readline().split(" ");
+    var inputs: string[] = debugreadline().split(" ");
     const pacId: number = parseInt(inputs[0]); // pac number (unique within a team)
     const mine: boolean = inputs[1] !== "0"; // true if this pac is yours
     const x: number = parseInt(inputs[2]); // position in the grid
@@ -304,10 +428,10 @@ while (true) {
     game.roundInput(pacId, mine, new Position(x, y), typeId, speedTurnsLeft, abilityCooldown);
   }
 
-  const visiblePelletCount: number = parseInt(readline()); // all pellets in sight
+  const visiblePelletCount: number = parseInt(debugreadline()); // all pellets in sight
 
   for (let i = 0; i < visiblePelletCount; i++) {
-    var inputs: string[] = readline().split(" ");
+    var inputs: string[] = debugreadline().split(" ");
     const x: number = parseInt(inputs[0]);
     const y: number = parseInt(inputs[1]);
     const value: number = parseInt(inputs[2]); // amount of points this pellet is worth

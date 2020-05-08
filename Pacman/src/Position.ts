@@ -9,7 +9,13 @@ export class Position {
     this.y = y;
   }
 
-  asKey() {
+  asKey(): string {
     return asKey(this.x, this.y);
+  }
+
+  sameAs(p: Position | null): boolean {
+    if (!p) return false;
+
+    return p.x === this.x && p.y === this.y;
   }
 }
