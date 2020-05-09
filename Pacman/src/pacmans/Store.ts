@@ -1,4 +1,4 @@
-import { Position } from "../Position";
+import { PacmanProperties } from "./APacman";
 
 export type InternalStore<T> = {
   [key: string]: T;
@@ -10,8 +10,8 @@ export class Store<T> {
 
   constructor(protected Ctor: any) {}
 
-  add(id: number, position: Position) {
-    this.store[id] = new this.Ctor(id, position);
+  add(id: number, properties: PacmanProperties) {
+    this.store[id] = new this.Ctor(id, properties);
   }
 
   get(id: number): T {

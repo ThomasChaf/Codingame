@@ -2,9 +2,8 @@ import { Pacman } from "../pacmans/Pacman";
 import { Graph } from "../board/Graph";
 
 export enum EStrategyType {
-  UNDEFINED,
-  COLLECTOR,
-  WAITOR,
+  COLLECTOR = "COLLECTOR",
+  SPEED = "SPEED",
 }
 
 export enum EStrategyAvancement {
@@ -14,6 +13,7 @@ export enum EStrategyAvancement {
 
 export enum PlayType {
   MOVE = "MOVE",
+  SPEED = "SPEED",
 }
 
 export type Play = {
@@ -22,6 +22,7 @@ export type Play = {
 };
 
 export abstract class AStrategy {
+  public abstract type: EStrategyType;
   protected avancement: EStrategyAvancement = EStrategyAvancement.IN_PROGRESS;
 
   abstract play(pacman: Pacman): Play;

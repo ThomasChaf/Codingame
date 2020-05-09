@@ -1,29 +1,38 @@
 import { APacman } from "./APacman";
 import { Graph } from "../board/Graph";
-import { AStrategy, Play, PlayType } from "../strategy/AStrategy";
-import { StrategyDefiner } from "../strategy/Definer";
+import { Play, PlayType, AStrategy } from "../strategy/AStrategy";
+import { CollectorStrategy } from "../strategy/CollectorStrategy";
+import { SpeedStrategy } from "../strategy/SpeedStrategy";
 
 export const PLAYS = {
   [PlayType.MOVE]: ({ id, goal }: any) => `${PlayType.MOVE} ${id} ${goal.x} ${goal.y}`,
+  [PlayType.SPEED]: ({ id }: any) => `${PlayType.SPEED} ${id}`,
 };
 
 export class Pacman extends APacman {
-  private strategy: AStrategy | null = null;
-  private strategyDefiner: StrategyDefiner = new StrategyDefiner();
+  private strategy: AStrategy = {} as AStrategy;
+  private strategies = {
+    SPEED: new SpeedStrategy(),
+    COLLECTOR: new CollectorStrategy(),
+  };
+
+  selectStrategy(pacman: Pacman): AStrategy {
+    if (pacman.abilityAvailable()) {
+      return this.strategies.SPEED;
+    } else {
+      return this.strategies.COLLECTOR;
+    }
+  }
 
   willPlay(graph: Graph) {
     graph.updateNode(this.getPosition().asKey(), 0);
 
-    if (!this.strategy) {
-      this.strategy = this.strategyDefiner.select(this, graph);
-    }
+    this.strategy = this.selectStrategy(this);
 
     this.strategy.willPlay(this, graph);
   }
 
   play(): string {
-    if (!this.strategy) throw new Error("No strategy defined");
-
     const action: Play = this.strategy.play(this);
 
     return PLAYS[action.type](action.param);

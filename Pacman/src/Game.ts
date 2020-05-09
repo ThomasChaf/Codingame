@@ -28,9 +28,9 @@ export class Game {
     const store = mine ? this.myPacman : this.enemies;
 
     if (!store.exist(pacId)) {
-      store.add(pacId, position);
+      store.add(pacId, { position, abilityCooldown });
     } else {
-      store.get(pacId).setPosition(position);
+      store.get(pacId).update({ position, abilityCooldown });
     }
 
     if (mine) store.isAlive(pacId);

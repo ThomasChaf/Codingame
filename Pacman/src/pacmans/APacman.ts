@@ -1,8 +1,29 @@
 import { Position } from "../Position";
 
-export abstract class APacman {
-  constructor(public id: number, protected position: Position) {}
+export interface PacmanProperties {
+  position: Position;
+  abilityCooldown: number;
+}
 
-  setPosition = (position: Position) => (this.position = position);
-  getPosition = (): Position => this.position;
+export abstract class APacman {
+  protected position: Position;
+  protected abilityCooldown: number;
+
+  constructor(public id: number, properties: PacmanProperties) {
+    this.abilityCooldown = properties.abilityCooldown;
+    this.position = properties.position;
+  }
+
+  update(properties: PacmanProperties) {
+    this.abilityCooldown = properties.abilityCooldown;
+    this.position = properties.position;
+  }
+
+  getPosition(): Position {
+    return this.position;
+  }
+
+  abilityAvailable(): boolean {
+    return this.abilityCooldown === 0;
+  }
 }

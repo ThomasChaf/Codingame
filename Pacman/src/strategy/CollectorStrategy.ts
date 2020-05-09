@@ -1,6 +1,6 @@
 import { Graph } from "../board/Graph";
 import { Position } from "../Position";
-import { AStrategy, PlayType, Play, EStrategyAvancement } from "./AStrategy";
+import { AStrategy, PlayType, Play, EStrategyAvancement, EStrategyType } from "./AStrategy";
 import { Pacman } from "../pacmans/Pacman";
 
 type Result = {
@@ -20,14 +20,12 @@ type Todo = {
 };
 
 export class CollectorStrategy extends AStrategy {
-  private goal: Result;
-
-  constructor(pacman: Pacman, graph: Graph) {
-    super();
-    this.goal = this.parcours(graph, pacman.getPosition(), pacman);
-  }
+  public type: EStrategyType = EStrategyType.COLLECTOR;
+  private goal?: Result;
 
   ensureTravel(pacman: Pacman, graph: Graph): boolean {
+    if (!this.goal) throw new Error("No goal set on willPlay");
+
     if (pacman.getPosition().asKey() === this.goal.path[0]) {
       this.goal.path.shift();
     }
@@ -116,6 +114,8 @@ export class CollectorStrategy extends AStrategy {
   }
 
   play(pacman: Pacman): Play {
+    if (!this.goal) throw new Error("No goal set on willPlay");
+
     return {
       type: PlayType.MOVE,
       param: {
