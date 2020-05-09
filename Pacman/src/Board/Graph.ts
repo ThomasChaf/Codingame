@@ -1,12 +1,20 @@
 import { Position } from "../Position";
+import { Pacman } from "../pacmans/Pacman";
+import { Enemy } from "../pacmans/Enemy";
+import { Store } from "../pacmans/APacman";
 
 class GraphNode {
-  position: Position;
-  edges: string[] = [];
-  value: number = 0;
+  public position: Position;
+  public edges: string[] = [];
+  public value: number = 0;
+  public hasPacman = false;
 
   constructor(position: Position) {
     this.position = position;
+  }
+
+  hasObstacle() {
+    return this.hasPacman;
   }
 }
 
@@ -39,6 +47,24 @@ export class Graph {
 
   addEdge(from: Position, to: Position) {
     this.nodes[from.asKey()].edges.push(to.asKey());
+  }
+
+  addEntities(myPacman: Store<Pacman>, enemies: Store<Enemy>) {
+    Object.values(myPacman).forEach((pacman) => {
+      this.nodes[pacman.getPosition().asKey()].hasPacman = true;
+    });
+    Object.values(enemies).forEach((enemy) => {
+      this.nodes[enemy.getPosition().asKey()].hasPacman = true;
+    });
+  }
+
+  cleanEntities(myPacman: Store<Pacman>, enemies: Store<Enemy>) {
+    Object.values(myPacman).forEach((pacman) => {
+      this.nodes[pacman.getPosition().asKey()].hasPacman = false;
+    });
+    Object.values(enemies).forEach((enemy) => {
+      this.nodes[enemy.getPosition().asKey()].hasPacman = false;
+    });
   }
 
   print() {

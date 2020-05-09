@@ -40,11 +40,23 @@ export class Game {
     this.graph.updateNode(asKey(x, y), value);
   }
 
-  public play() {
+  public willPlay() {
+    this.graph.addEntities(this.myPacman, this.enemies);
+
     Object.values(this.enemies).forEach((pac) => pac.willPlay(this.graph));
 
-    Object.values(this.myPacman).forEach((pac) => pac.willPlay(this.graph));
+    Object.values(this.myPacman).forEach((pac) => pac.willPlay(this.graph, this.myPacman, this.enemies));
+  }
 
-    Object.values(this.myPacman).forEach((pac) => pac.play());
+  public play() {
+    console.log(
+      Object.values(this.myPacman)
+        .map((pac) => pac.play())
+        .join("|")
+    );
+  }
+
+  public didPlay() {
+    this.graph.cleanEntities(this.myPacman, this.enemies);
   }
 }

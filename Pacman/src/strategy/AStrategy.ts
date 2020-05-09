@@ -1,5 +1,7 @@
 import { Pacman } from "../pacmans/Pacman";
 import { Graph } from "../board/Graph";
+import { Store } from "../pacmans/APacman";
+import { Enemy } from "../pacmans/Enemy";
 
 export enum EStrategyType {
   UNDEFINED,
@@ -12,19 +14,19 @@ export enum EStrategyAvancement {
   COMPLETED,
 }
 
-export enum ActionType {
+export enum PlayType {
   MOVE = "MOVE",
 }
 
-export type Action = {
-  type: ActionType;
+export type Play = {
+  type: PlayType;
   param: any;
 };
 
 export abstract class AStrategy {
   protected avancement: EStrategyAvancement = EStrategyAvancement.IN_PROGRESS;
 
-  abstract computeAction(pacman: Pacman): Action;
+  abstract play(pacman: Pacman): Play;
 
-  abstract computeRound(pacman: Pacman, graph: Graph): void;
+  abstract willPlay(pacman: Pacman, graph: Graph, myPacman: Store<Pacman>, enemies: Store<Enemy>): void;
 }

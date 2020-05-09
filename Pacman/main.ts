@@ -67,5 +67,9 @@ while (true) {
     game.updatePellet(x, y, value);
   }
 
+  game.willPlay();
+
   game.play();
+
+  game.didPlay();
 }

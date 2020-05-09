@@ -20,3 +20,5 @@ mv out-3.ts out.ts
 rm out-*.ts
 
 pbcopy < out.ts
+
+rm out.ts 
