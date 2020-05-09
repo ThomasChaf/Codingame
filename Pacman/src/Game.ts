@@ -1,19 +1,23 @@
 import { Graph } from "./board/Graph";
 import { Position, asKey } from "./Position";
-import { Store } from "./pacmans/APacman";
+import { Store } from "./pacmans/Store";
 import { Pacman } from "./pacmans/Pacman";
 import { Enemy } from "./pacmans/Enemy";
 
 export class Game {
   private graph: Graph;
-  private myPacman: Store<Pacman> = {};
-  private enemies: Store<Enemy> = {};
+  private myPacman: Store<Pacman> = new Store<Pacman>(Pacman);
+  private enemies: Store<Enemy> = new Store<Enemy>(Enemy);
 
   constructor(graph: Graph) {
     this.graph = graph;
   }
 
-  public roundInput = (
+  public willUpdatePac() {
+    this.myPacman.inventory();
+  }
+
+  public updatePac = (
     pacId: number,
     mine: boolean,
     position: Position,
@@ -21,20 +25,20 @@ export class Game {
     speedTurnsLeft: number,
     abilityCooldown: number
   ) => {
-    if (mine) {
-      if (!this.myPacman[pacId]) {
-        this.myPacman[pacId] = new Pacman(pacId, position);
-      } else {
-        this.myPacman[pacId].setPosition(position);
-      }
+    const store = mine ? this.myPacman : this.enemies;
+
+    if (!store.exist(pacId)) {
+      store.add(pacId, position);
     } else {
-      if (!this.enemies[pacId]) {
-        this.enemies[pacId] = new Enemy(pacId, position);
-      } else {
-        this.enemies[pacId].setPosition(position);
-      }
+      store.get(pacId).setPosition(position);
     }
+
+    if (mine) store.isAlive(pacId);
   };
+
+  public didUpdatePac() {
+    this.myPacman.removeDiedPac();
+  }
 
   public updatePellet(x: number, y: number, value: number) {
     this.graph.updateNode(asKey(x, y), value);
@@ -43,17 +47,13 @@ export class Game {
   public willPlay() {
     this.graph.addEntities(this.myPacman, this.enemies);
 
-    Object.values(this.enemies).forEach((pac) => pac.willPlay(this.graph));
+    this.enemies.forEach((pac) => pac.willPlay(this.graph));
 
-    Object.values(this.myPacman).forEach((pac) => pac.willPlay(this.graph, this.myPacman, this.enemies));
+    this.myPacman.forEach((pac) => pac.willPlay(this.graph));
   }
 
   public play() {
-    console.log(
-      Object.values(this.myPacman)
-        .map((pac) => pac.play())
-        .join("|")
-    );
+    console.log(this.myPacman.map((pac) => pac.play()).join("|"));
   }
 
   public didPlay() {

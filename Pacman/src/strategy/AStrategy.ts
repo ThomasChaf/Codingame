@@ -1,7 +1,5 @@
 import { Pacman } from "../pacmans/Pacman";
 import { Graph } from "../board/Graph";
-import { Store } from "../pacmans/APacman";
-import { Enemy } from "../pacmans/Enemy";
 
 export enum EStrategyType {
   UNDEFINED,
@@ -28,5 +26,5 @@ export abstract class AStrategy {
 
   abstract play(pacman: Pacman): Play;
 
-  abstract willPlay(pacman: Pacman, graph: Graph, myPacman: Store<Pacman>, enemies: Store<Enemy>): void;
+  abstract willPlay(pacman: Pacman, graph: Graph): void;
 }

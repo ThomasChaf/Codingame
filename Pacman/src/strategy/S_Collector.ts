@@ -2,8 +2,6 @@ import { Graph } from "../board/Graph";
 import { Position } from "../Position";
 import { AStrategy, PlayType, Play, EStrategyAvancement } from "./AStrategy";
 import { Pacman } from "../pacmans/Pacman";
-import { Store } from "../pacmans/APacman";
-import { Enemy } from "../pacmans/Enemy";
 
 type Result = {
   path: string[];
@@ -16,7 +14,7 @@ type Done = {
 };
 
 type Todo = {
-  prev: string[];
+  path: string[];
   current: number;
   nexts: string[];
 };
@@ -24,12 +22,30 @@ type Todo = {
 export class CollectorStrategy extends AStrategy {
   private goal: Result;
 
-  constructor(pacman: Pacman, graph: Graph, myPacman: Store<Pacman>, enemies: Store<Enemy>) {
+  constructor(pacman: Pacman, graph: Graph) {
     super();
-    this.goal = this.parcours(graph, pacman.getPosition(), myPacman, enemies);
+    this.goal = this.parcours(graph, pacman.getPosition(), pacman);
   }
 
-  parcours(graph: Graph, start: Position, myPacman: Store<Pacman>, enemies: Store<Enemy>): Result {
+  ensureTravel(pacman: Pacman, graph: Graph): boolean {
+    if (pacman.getPosition().asKey() === this.goal.path[0]) {
+      this.goal.path.shift();
+    }
+
+    // console.error("DEBUG:", "PATH:", pacman.id, this.goal.path.join("|"));
+
+    for (const i in this.goal.path) {
+      if (graph.getByKey(this.goal.path[i]).hasPacman) {
+        console.error("DEBUG:", "HAS TROUBLE", pacman.id, this.goal.path[i]);
+
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  parcours(graph: Graph, start: Position, pacman: Pacman): Result {
     const done: Done = {};
     let result: Result = {
       path: [],
@@ -39,7 +55,7 @@ export class CollectorStrategy extends AStrategy {
 
     let todos: Todo[] = [
       {
-        prev: [start.asKey()],
+        path: [],
         current: 0,
         nexts: graph.get(start).edges,
       },
@@ -48,28 +64,27 @@ export class CollectorStrategy extends AStrategy {
 
     while (depth < 20) {
       let nextTodos: Todo[] = [];
-      todos.forEach((todo) => {
-        todo.nexts.forEach((next) => {
-          if (done[next]) return;
+      todos.forEach((todo: Todo) => {
+        todo.nexts.forEach((nextKey: string) => {
+          if (done[nextKey]) return;
 
-          const node = graph.getByKey(next);
+          const node = graph.getByKey(nextKey);
           if (node.hasPacman) return;
 
-          const total = todo.current + (20 - depth) * node.value;
+          const total = Math.max(todo.current - 10 * depth, 0) + (20 - depth) * node.value;
 
           done[node.position.asKey()] = true;
           if (result.value < total) {
             result = {
-              path: todo.prev,
+              path: [...todo.path, nextKey],
               value: total,
               position: node.position,
             };
-            console.error("DEBUG:", "DONE:", node.position.asKey(), total);
-            console.error("DEBUG:", "PATH", result.path.join("|"));
           }
+          console.error("DEBUG:", "DONE:", pacman.id, node.position.asKey(), total);
 
           nextTodos.push({
-            prev: [...todo.prev, next],
+            path: [...todo.path, nextKey],
             current: total,
             nexts: node.edges,
           });
@@ -79,19 +94,24 @@ export class CollectorStrategy extends AStrategy {
       depth += 1;
     }
 
-    console.error("DEBUG:", "NEW GOAL:", result.position.asKey(), result.value);
+    console.error("DEBUG:", "NEW GOAL:", pacman.id, result.position.asKey(), result.value);
 
     return result;
   }
 
-  willPlay(pacman: Pacman, graph: Graph, myPacman: Store<Pacman>, enemies: Store<Enemy>) {
+  willPlay(pacman: Pacman, graph: Graph) {
     if (!this.goal || pacman.getPosition().sameAs(this.goal.position)) {
       this.avancement = EStrategyAvancement.COMPLETED;
     }
 
     if (this.avancement === EStrategyAvancement.COMPLETED) {
-      this.goal = this.parcours(graph, pacman.getPosition(), myPacman, enemies);
+      this.goal = this.parcours(graph, pacman.getPosition(), pacman);
       this.avancement = EStrategyAvancement.IN_PROGRESS;
+    } else if (this.avancement === EStrategyAvancement.IN_PROGRESS) {
+      const hasTrouble = this.ensureTravel(pacman, graph);
+      if (hasTrouble) {
+        this.avancement = EStrategyAvancement.COMPLETED;
+      }
     }
   }
 

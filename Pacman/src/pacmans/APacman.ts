@@ -6,7 +6,3 @@ export abstract class APacman {
   setPosition = (position: Position) => (this.position = position);
   getPosition = (): Position => this.position;
 }
-
-export type Store<T> = {
-  [key: string]: T;
-};

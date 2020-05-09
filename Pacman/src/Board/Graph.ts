@@ -1,7 +1,7 @@
 import { Position } from "../Position";
 import { Pacman } from "../pacmans/Pacman";
 import { Enemy } from "../pacmans/Enemy";
-import { Store } from "../pacmans/APacman";
+import { Store } from "../pacmans/Store";
 
 class GraphNode {
   public position: Position;
@@ -50,19 +50,19 @@ export class Graph {
   }
 
   addEntities(myPacman: Store<Pacman>, enemies: Store<Enemy>) {
-    Object.values(myPacman).forEach((pacman) => {
+    myPacman.forEach((pacman) => {
       this.nodes[pacman.getPosition().asKey()].hasPacman = true;
     });
-    Object.values(enemies).forEach((enemy) => {
+    enemies.forEach((enemy) => {
       this.nodes[enemy.getPosition().asKey()].hasPacman = true;
     });
   }
 
   cleanEntities(myPacman: Store<Pacman>, enemies: Store<Enemy>) {
-    Object.values(myPacman).forEach((pacman) => {
+    myPacman.forEach((pacman) => {
       this.nodes[pacman.getPosition().asKey()].hasPacman = false;
     });
-    Object.values(enemies).forEach((enemy) => {
+    enemies.forEach((enemy) => {
       this.nodes[enemy.getPosition().asKey()].hasPacman = false;
     });
   }

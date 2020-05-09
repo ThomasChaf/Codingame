@@ -44,6 +44,8 @@ while (true) {
   const opponentScore: number = parseInt(inputs[1]);
   const visiblePacCount: number = parseInt(debugreadline()); // all your pacs and enemy pacs in sight
 
+  game.willUpdatePac();
+
   for (let i = 0; i < visiblePacCount; i++) {
     var inputs: string[] = debugreadline().split(" ");
     const pacId: number = parseInt(inputs[0]); // pac number (unique within a team)
@@ -54,8 +56,10 @@ while (true) {
     const speedTurnsLeft: number = parseInt(inputs[5]); // unused in wood leagues
     const abilityCooldown: number = parseInt(inputs[6]); // unused in wood leagues
 
-    game.roundInput(pacId, mine, new Position(x, y), typeId, speedTurnsLeft, abilityCooldown);
+    game.updatePac(pacId, mine, new Position(x, y), typeId, speedTurnsLeft, abilityCooldown);
   }
+
+  game.didUpdatePac();
 
   const visiblePelletCount: number = parseInt(debugreadline()); // all pellets in sight
 
