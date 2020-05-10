@@ -10,6 +10,7 @@ import { SurvivorStrategy } from "../strategy/SurvivorStrategy";
 export const PLAYS = {
   [PlayType.MOVE]: ({ id, to, opt = "" }: any) => `${PlayType.MOVE} ${id} ${to.x} ${to.y}${opt}`,
   [PlayType.SPEED]: ({ id }: any) => `${PlayType.SPEED} ${id}`,
+  [PlayType.SWITCH]: ({ id, weapon }: any) => `${PlayType.SWITCH} ${id} ${weapon}`,
 };
 
 export class Pacman extends APacman {
@@ -24,9 +25,22 @@ export class Pacman extends APacman {
     return { mine: true, id: this.id, weapon: this.weapon };
   }
 
+  faceWeakerOpponent = (other: PacmanMeta): boolean => {
+    if (!other || other.mine) return true;
+
+    if (this.weapon === "ROCK" && other.weapon === "SCISSORS") return true;
+    if (this.weapon === "SCISSORS" && other.weapon === "PAPER") return true;
+    if (this.weapon === "PAPER" && other.weapon === "ROCK") return true;
+
+    return false;
+  };
+
   selectStrategy(): AStrategy {
     if (this.abilityAvailable()) {
-      if (this.strategies.SURVIVOR.hasDanger()) return this.strategies.SURVIVOR;
+      if (this.strategies.SURVIVOR.hasDanger()) {
+        console.error("DEBUG:", "SURVIVOR ON", this.id);
+        return this.strategies.SURVIVOR;
+      }
       return this.strategies.SPEED;
     } else {
       return this.strategies.COLLECTOR;

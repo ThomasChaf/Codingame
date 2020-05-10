@@ -18,6 +18,7 @@ export enum EStrategyAvancement {
 export enum PlayType {
   MOVE = "MOVE",
   SPEED = "SPEED",
+  SWITCH = "SWITCH",
 }
 
 export type Play = {
