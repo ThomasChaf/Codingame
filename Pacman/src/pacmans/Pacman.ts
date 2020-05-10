@@ -1,10 +1,11 @@
 import { APacman } from "./APacman";
-import { Graph } from "../board/Graph";
+import { Graph, PacmanMeta } from "../board/Graph";
 import { Play, PlayType, AStrategy } from "../strategy/AStrategy";
 import { CollectorStrategy } from "../strategy/CollectorStrategy";
 import { SpeedStrategy } from "../strategy/SpeedStrategy";
 import { RandomStrategy } from "../strategy/RandomStrategy";
 import { Facilitator } from "../Facilitator";
+import { SurvivorStrategy } from "../strategy/SurvivorStrategy";
 
 export const PLAYS = {
   [PlayType.MOVE]: ({ id, to, opt = "" }: any) => `${PlayType.MOVE} ${id} ${to.x} ${to.y}${opt}`,
@@ -16,15 +17,16 @@ export class Pacman extends APacman {
   private strategies = {
     SPEED: new SpeedStrategy(),
     COLLECTOR: new CollectorStrategy(),
+    SURVIVOR: new SurvivorStrategy(),
   };
-  private fast = 0;
 
-  isFast(): boolean {
-    return this.fast > 0;
+  toMeta(): PacmanMeta {
+    return { mine: true, id: this.id, weapon: this.weapon };
   }
 
-  selectStrategy(pacman: Pacman): AStrategy {
-    if (pacman.abilityAvailable()) {
+  selectStrategy(): AStrategy {
+    if (this.abilityAvailable()) {
+      if (this.strategies.SURVIVOR.hasDanger()) return this.strategies.SURVIVOR;
       return this.strategies.SPEED;
     } else {
       return this.strategies.COLLECTOR;
@@ -34,21 +36,16 @@ export class Pacman extends APacman {
   willPlay(graph: Graph) {
     this.savedMoves.forEach((move) => graph.updateNode(move, 0));
 
-    this.strategy.update(this, graph);
+    this.strategies.COLLECTOR.update(this, graph);
+    this.strategies.SURVIVOR.update(this, graph);
 
-    this.strategy = this.selectStrategy(this);
+    this.strategy = this.selectStrategy();
 
     this.strategy.willPlay(this, graph);
   }
 
   play(graph: Graph, facilitator: Facilitator): string {
     const action: Play = this.strategy.play(this, graph, facilitator);
-
-    if (action.type === PlayType.SPEED) {
-      this.fast = 5;
-    } else if (this.fast > 0) {
-      this.fast -= 1;
-    }
 
     return PLAYS[action.type](action.param);
   }

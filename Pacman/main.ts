@@ -52,11 +52,11 @@ while (true) {
     const mine: boolean = inputs[1] !== "0"; // true if this pac is yours
     const x: number = parseInt(inputs[2]); // position in the grid
     const y: number = parseInt(inputs[3]); // position in the grid
-    const typeId: string = inputs[4]; // unused in wood leagues
+    const weapon: string = inputs[4]; // unused in wood leagues
     const speedTurnsLeft: number = parseInt(inputs[5]); // unused in wood leagues
     const abilityCooldown: number = parseInt(inputs[6]); // unused in wood leagues
 
-    game.updatePac(pacId, mine, new Position(x, y), typeId, speedTurnsLeft, abilityCooldown);
+    game.updatePac(pacId, mine, new Position(x, y), weapon, speedTurnsLeft, abilityCooldown);
   }
 
   game.didUpdatePac();

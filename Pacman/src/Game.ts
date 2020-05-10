@@ -23,16 +23,16 @@ export class Game {
     pacId: number,
     mine: boolean,
     position: Position,
-    typeId: string,
-    speedTurnsLeft: number,
+    weapon: string,
+    fast: number,
     abilityCooldown: number
   ) => {
     const store = mine ? this.myPacman : this.enemies;
 
     if (!store.exist(pacId)) {
-      store.add(pacId, { position, abilityCooldown });
+      store.add(pacId, { position, abilityCooldown, weapon, fast });
     } else {
-      store.get(pacId).update(this.graph, { position, abilityCooldown });
+      store.get(pacId).update(this.graph, { position, abilityCooldown, weapon, fast });
     }
 
     if (mine) store.isAlive(pacId);

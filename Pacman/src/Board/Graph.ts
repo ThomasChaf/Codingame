@@ -3,18 +3,28 @@ import { Pacman } from "../pacmans/Pacman";
 import { Enemy } from "../pacmans/Enemy";
 import { Store } from "../pacmans/Store";
 
+export type PacmanMeta = {
+  mine: boolean;
+  id: number;
+  weapon: string;
+} | null;
+
 class GraphNode {
   public position: Position;
   public edges: string[] = [];
   public value: number = 1;
-  public hasPacman = false;
+  public pacmanMeta: PacmanMeta = null;
 
   constructor(position: Position) {
     this.position = position;
   }
 
+  setPacmanMeta(pacmanMeta: PacmanMeta) {
+    this.pacmanMeta = pacmanMeta;
+  }
+
   hasObstacle() {
-    return this.hasPacman;
+    return this.pacmanMeta !== null;
   }
 }
 
@@ -51,19 +61,19 @@ export class Graph {
 
   addEntities(myPacman: Store<Pacman>, enemies: Store<Enemy>) {
     myPacman.forEach((pacman) => {
-      this.nodes[pacman.getPosition().asKey()].hasPacman = true;
+      this.nodes[pacman.getPosition().asKey()].setPacmanMeta(pacman.toMeta());
     });
     enemies.forEach((enemy) => {
-      this.nodes[enemy.getPosition().asKey()].hasPacman = true;
+      this.nodes[enemy.getPosition().asKey()].setPacmanMeta(enemy.toMeta());
     });
   }
 
   cleanEntities(myPacman: Store<Pacman>, enemies: Store<Enemy>) {
     myPacman.forEach((pacman) => {
-      this.nodes[pacman.getPosition().asKey()].hasPacman = false;
+      this.nodes[pacman.getPosition().asKey()].setPacmanMeta(null);
     });
     enemies.forEach((enemy) => {
-      this.nodes[enemy.getPosition().asKey()].hasPacman = false;
+      this.nodes[enemy.getPosition().asKey()].setPacmanMeta(null);
     });
   }
 

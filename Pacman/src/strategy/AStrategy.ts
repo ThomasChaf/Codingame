@@ -1,11 +1,13 @@
 import { Pacman } from "../pacmans/Pacman";
 import { Graph } from "../board/Graph";
 import { Facilitator } from "../Facilitator";
+import { Goal } from "./GoalStrategy";
 
 export enum EStrategyType {
   COLLECTOR = "COLLECTOR",
   SPEED = "SPEED",
   RANDOM = "RANDOM",
+  SURVIVOR = "SURVIVOR",
 }
 
 export enum EStrategyAvancement {
@@ -24,8 +26,10 @@ export type Play = {
 };
 
 export abstract class AStrategy {
+  public goal?: Goal;
+
   public abstract type: EStrategyType;
-  protected avancement: EStrategyAvancement = EStrategyAvancement.IN_PROGRESS;
+  public avancement: EStrategyAvancement = EStrategyAvancement.IN_PROGRESS;
 
   abstract update(pacman: Pacman, graph: Graph): void;
 

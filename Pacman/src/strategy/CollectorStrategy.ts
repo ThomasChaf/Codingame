@@ -42,7 +42,7 @@ export class CollectorStrategy extends GoalStrategy {
           if (done[nextKey]) return;
 
           const node = graph.getByKey(nextKey);
-          if (node.hasPacman) return;
+          if (node.hasObstacle()) return;
 
           const total = Math.max(todo.current - 10 * depth, 0) + (20 - depth) * node.value;
 

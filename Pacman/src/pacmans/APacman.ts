@@ -1,20 +1,28 @@
 import { Position } from "../Position";
-import { Graph } from "../board/Graph";
+import { Graph, PacmanMeta } from "../board/Graph";
 
 export interface PacmanProperties {
+  fast: number;
   position: Position;
   abilityCooldown: number;
+  weapon: string;
 }
 
 export abstract class APacman {
   protected position: Position;
+  protected weapon: string;
+  protected fast: number;
   protected abilityCooldown: number;
   public savedMoves: string[] = [];
 
   constructor(public id: number, properties: PacmanProperties) {
     this.abilityCooldown = properties.abilityCooldown;
     this.position = properties.position;
+    this.fast = properties.fast;
+    this.weapon = properties.weapon;
   }
+
+  abstract toMeta(): PacmanMeta;
 
   computeMove(graph: Graph, newPostion: Position) {
     this.savedMoves = [];
