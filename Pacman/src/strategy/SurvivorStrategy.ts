@@ -1,7 +1,7 @@
 import { AStrategy, PlayType, Play, EStrategyType } from "./AStrategy";
 import { Pacman } from "../pacmans/Pacman";
-import { Graph, PacmanMeta } from "../board/Graph";
 import { Facilitator } from "../Facilitator";
+import { PacmanGraph, PacmanMeta } from "../board/PacmanGraph";
 
 type Danger = PacmanMeta | null;
 
@@ -13,7 +13,7 @@ export class SurvivorStrategy extends AStrategy {
     return this.danger !== null;
   }
 
-  update(pacman: Pacman, graph: Graph) {
+  update(pacman: Pacman, graph: PacmanGraph) {
     this.danger = null;
 
     const currentNode = graph.get(pacman.getPosition());
@@ -21,25 +21,25 @@ export class SurvivorStrategy extends AStrategy {
     for (const i in currentNode.edges) {
       const nextNode = graph.getByKey(currentNode.edges[i]);
 
-      if (!pacman.faceWeakerOpponent(nextNode.pacmanMeta)) {
-        this.danger = nextNode.pacmanMeta;
+      if (!pacman.faceWeakerOpponent(nextNode.meta)) {
+        this.danger = nextNode.meta;
         return;
       }
 
       for (const j in nextNode.edges) {
         const newNextNode = graph.getByKey(nextNode.edges[j]);
 
-        if (!pacman.faceWeakerOpponent(newNextNode.pacmanMeta)) {
-          this.danger = newNextNode.pacmanMeta;
+        if (!pacman.faceWeakerOpponent(newNextNode.meta)) {
+          this.danger = newNextNode.meta;
           return;
         }
       }
     }
   }
 
-  willPlay(pacman: Pacman, graph: Graph) {}
+  willPlay(pacman: Pacman, graph: PacmanGraph) {}
 
-  play(pacman: Pacman, graph: Graph, facilitator: Facilitator): Play {
+  play(pacman: Pacman, graph: PacmanGraph, facilitator: Facilitator): Play {
     if (!this.danger) throw "No danger on survivor";
 
     let weapon = "";

@@ -1,4 +1,4 @@
-import { Graph } from "../board/Graph";
+import { PacmanGraph } from "../board/PacmanGraph";
 import { Position } from "../Position";
 import { PlayType, Play, EStrategyAvancement, EStrategyType } from "./AStrategy";
 import { Pacman } from "../pacmans/Pacman";
@@ -18,7 +18,7 @@ type Todo = {
 export class CollectorStrategy extends GoalStrategy {
   public type: EStrategyType = EStrategyType.COLLECTOR;
 
-  parcours(graph: Graph, start: Position, pacman: Pacman): Goal {
+  parcours(graph: PacmanGraph, start: Position, pacman: Pacman): Goal {
     const done: Done = {};
     let result: Goal = {
       path: [],
@@ -73,13 +73,13 @@ export class CollectorStrategy extends GoalStrategy {
     return result;
   }
 
-  update(pacman: Pacman, graph: Graph) {
+  update(pacman: Pacman, graph: PacmanGraph) {
     if (this.avancement === EStrategyAvancement.IN_PROGRESS) {
       this.updateGoal(pacman);
     }
   }
 
-  willPlay(pacman: Pacman, graph: Graph) {
+  willPlay(pacman: Pacman, graph: PacmanGraph) {
     if (!this.goal || pacman.getPosition().sameAs(this.goal.position)) {
       this.avancement = EStrategyAvancement.COMPLETED;
     }
@@ -95,7 +95,7 @@ export class CollectorStrategy extends GoalStrategy {
     }
   }
 
-  play(pacman: Pacman, graph: Graph, facilitator: Facilitator): Play {
+  play(pacman: Pacman, graph: PacmanGraph, facilitator: Facilitator): Play {
     if (!this.goal) throw new Error("No goal set on willPlay");
 
     let to = this.goal.path[2] ? graph.getByKey(this.goal.path[2]).position : this.goal.position;

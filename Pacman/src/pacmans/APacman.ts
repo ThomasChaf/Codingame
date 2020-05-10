@@ -1,5 +1,5 @@
 import { Position } from "../Position";
-import { Graph, PacmanMeta } from "../board/Graph";
+import { PacmanGraph, PacmanMeta } from "../board/PacmanGraph";
 
 export interface PacmanProperties {
   fast: number;
@@ -24,7 +24,7 @@ export abstract class APacman {
 
   abstract toMeta(): PacmanMeta;
 
-  computeMove(graph: Graph, newPostion: Position) {
+  computeMove(graph: PacmanGraph, newPostion: Position) {
     this.savedMoves = [];
     const from = this.position.asKey();
     const to = newPostion.asKey();
@@ -46,7 +46,7 @@ export abstract class APacman {
     }
   }
 
-  update(graph: Graph, properties: PacmanProperties) {
+  update(graph: PacmanGraph, properties: PacmanProperties) {
     this.computeMove(graph, properties.position);
     // console.error("DEBUG:", "MOVE [", this.savedMoves.join(","), "]");
     this.abilityCooldown = properties.abilityCooldown;

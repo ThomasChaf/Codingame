@@ -1,4 +1,4 @@
-import { Graph } from "./Graph";
+import { PacmanGraph } from "./PacmanGraph";
 import { Position } from "../Position";
 
 const DIRECTIONS = [
@@ -39,10 +39,10 @@ export class Factory {
     this.board.addRow(row);
   }
 
-  constructGraph = (): Graph => {
+  constructGraph = (): PacmanGraph => {
     const mod = (n: number, m: number) => ((n % m) + m) % m;
 
-    const graph = new Graph();
+    const graph = new PacmanGraph();
     for (let x = 0; x < this.width; x++) {
       for (let y = 0; y < this.height; y++) {
         if (this.board.at(x, y) === " ") {

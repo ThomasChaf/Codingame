@@ -1,7 +1,7 @@
 import { AStrategy } from "./AStrategy";
 import { Position } from "../Position";
 import { Pacman } from "../pacmans/Pacman";
-import { Graph } from "../board/Graph";
+import { PacmanGraph } from "../board/PacmanGraph";
 
 export type Goal = {
   path: string[];
@@ -16,7 +16,7 @@ export abstract class GoalStrategy extends AStrategy {
     this.goal.path = this.goal.path.filter((path: string) => !pacman.savedMoves.includes(path));
   }
 
-  public isGoalDangerous(pacman: Pacman, graph: Graph): boolean {
+  public isGoalDangerous(pacman: Pacman, graph: PacmanGraph): boolean {
     if (!this.goal) return false;
 
     for (const i in this.goal.path) {

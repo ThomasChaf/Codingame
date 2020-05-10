@@ -1,4 +1,4 @@
-import { Graph } from "./board/Graph";
+import { PacmanGraph } from "./board/PacmanGraph";
 import { Position, asKey } from "./Position";
 import { Store } from "./pacmans/Store";
 import { Pacman } from "./pacmans/Pacman";
@@ -6,12 +6,12 @@ import { Enemy } from "./pacmans/Enemy";
 import { Facilitator } from "./Facilitator";
 
 export class Game {
-  private graph: Graph;
+  private graph: PacmanGraph;
   private facilitator: Facilitator = new Facilitator();
   private myPacman: Store<Pacman> = new Store<Pacman>(Pacman);
   private enemies: Store<Enemy> = new Store<Enemy>(Enemy);
 
-  constructor(graph: Graph) {
+  constructor(graph: PacmanGraph) {
     this.graph = graph;
   }
 

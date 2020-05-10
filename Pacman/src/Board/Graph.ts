@@ -1,53 +1,40 @@
 import { Position } from "../Position";
-import { Pacman } from "../pacmans/Pacman";
-import { Enemy } from "../pacmans/Enemy";
-import { Store } from "../pacmans/Store";
 
-export type PacmanMeta = {
-  mine: boolean;
-  id: number;
-  weapon: string;
-} | null;
-
-class GraphNode {
+class GraphNode<T> {
   public position: Position;
   public edges: string[] = [];
   public value: number = 1;
-  public pacmanMeta: PacmanMeta = null;
+  public meta: T | null = null;
 
   constructor(position: Position) {
     this.position = position;
   }
 
-  setPacmanMeta(pacmanMeta: PacmanMeta) {
-    this.pacmanMeta = pacmanMeta;
+  setMeta(meta: T | null) {
+    this.meta = meta;
   }
 
   hasObstacle() {
-    return this.pacmanMeta !== null;
+    return this.meta !== null;
   }
 }
 
-type NodeStore = {
-  [k: string]: GraphNode;
+type NodeStore<T> = {
+  [k: string]: GraphNode<T>;
 };
 
-export class Graph {
-  private nodes: NodeStore;
-
-  constructor() {
-    this.nodes = {};
-  }
+export class Graph<T> {
+  protected nodes: NodeStore<T> = {};
 
   addNode(pos: Position) {
     this.nodes[pos.asKey()] = new GraphNode(pos);
   }
 
-  get = (pos: Position): GraphNode => {
+  get = (pos: Position): GraphNode<T> => {
     return this.nodes[pos.asKey()];
   };
 
-  getByKey = (key: string): GraphNode => {
+  getByKey = (key: string): GraphNode<T> => {
     return this.nodes[key];
   };
 
@@ -57,32 +44,5 @@ export class Graph {
 
   addEdge(from: Position, to: Position) {
     this.nodes[from.asKey()].edges.push(to.asKey());
-  }
-
-  addEntities(myPacman: Store<Pacman>, enemies: Store<Enemy>) {
-    myPacman.forEach((pacman) => {
-      this.nodes[pacman.getPosition().asKey()].setPacmanMeta(pacman.toMeta());
-    });
-    enemies.forEach((enemy) => {
-      this.nodes[enemy.getPosition().asKey()].setPacmanMeta(enemy.toMeta());
-    });
-  }
-
-  cleanEntities(myPacman: Store<Pacman>, enemies: Store<Enemy>) {
-    myPacman.forEach((pacman) => {
-      this.nodes[pacman.getPosition().asKey()].setPacmanMeta(null);
-    });
-    enemies.forEach((enemy) => {
-      this.nodes[enemy.getPosition().asKey()].setPacmanMeta(null);
-    });
-  }
-
-  print() {
-    Object.values(this.nodes).forEach((node) => {
-      console.log("NODE:", node.position.x, node.position.y);
-      node.edges.map((e) => {
-        console.log("    ", e);
-      });
-    });
   }
 }

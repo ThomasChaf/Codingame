@@ -1,4 +1,4 @@
-import { Graph, PacmanMeta } from "../board/Graph";
+import { PacmanGraph, PacmanMeta } from "../board/PacmanGraph";
 import { APacman } from "./APacman";
 
 export class Enemy extends APacman {
@@ -6,7 +6,7 @@ export class Enemy extends APacman {
     return { mine: false, id: this.id, weapon: this.weapon };
   }
 
-  willPlay(graph: Graph) {
+  willPlay(graph: PacmanGraph) {
     graph.updateNode(this.getPosition().asKey(), 0);
   }
 }

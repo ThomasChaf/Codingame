@@ -1,5 +1,5 @@
 import { Pacman } from "../pacmans/Pacman";
-import { Graph } from "../board/Graph";
+import { PacmanGraph } from "../board/PacmanGraph";
 import { Facilitator } from "../Facilitator";
 import { Goal } from "./GoalStrategy";
 
@@ -32,9 +32,9 @@ export abstract class AStrategy {
   public abstract type: EStrategyType;
   public avancement: EStrategyAvancement = EStrategyAvancement.IN_PROGRESS;
 
-  abstract update(pacman: Pacman, graph: Graph): void;
+  abstract update(pacman: Pacman, graph: PacmanGraph): void;
 
-  abstract play(pacman: Pacman, graph: Graph, facilitator: Facilitator): Play;
+  abstract play(pacman: Pacman, graph: PacmanGraph, facilitator: Facilitator): Play;
 
-  abstract willPlay(pacman: Pacman, graph: Graph): void;
+  abstract willPlay(pacman: Pacman, graph: PacmanGraph): void;
 }

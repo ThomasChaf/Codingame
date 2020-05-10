@@ -1,5 +1,5 @@
 import { APacman } from "./APacman";
-import { Graph, PacmanMeta } from "../board/Graph";
+import { PacmanGraph, PacmanMeta } from "../board/PacmanGraph";
 import { Play, PlayType, AStrategy } from "../strategy/AStrategy";
 import { CollectorStrategy } from "../strategy/CollectorStrategy";
 import { SpeedStrategy } from "../strategy/SpeedStrategy";
@@ -47,7 +47,7 @@ export class Pacman extends APacman {
     }
   }
 
-  willPlay(graph: Graph) {
+  willPlay(graph: PacmanGraph) {
     this.savedMoves.forEach((move) => graph.updateNode(move, 0));
 
     this.strategies.COLLECTOR.update(this, graph);
@@ -58,7 +58,7 @@ export class Pacman extends APacman {
     this.strategy.willPlay(this, graph);
   }
 
-  play(graph: Graph, facilitator: Facilitator): string {
+  play(graph: PacmanGraph, facilitator: Facilitator): string {
     const action: Play = this.strategy.play(this, graph, facilitator);
 
     return PLAYS[action.type](action.param);
