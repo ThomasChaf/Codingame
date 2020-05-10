@@ -3,9 +3,10 @@ import { Graph } from "../board/Graph";
 import { Play, PlayType, AStrategy } from "../strategy/AStrategy";
 import { CollectorStrategy } from "../strategy/CollectorStrategy";
 import { SpeedStrategy } from "../strategy/SpeedStrategy";
+import { Facilitator } from "../Facilitator";
 
 export const PLAYS = {
-  [PlayType.MOVE]: ({ id, goal }: any) => `${PlayType.MOVE} ${id} ${goal.x} ${goal.y}`,
+  [PlayType.MOVE]: ({ id, to, opt = "" }: any) => `${PlayType.MOVE} ${id} ${to.x} ${to.y}${opt}`,
   [PlayType.SPEED]: ({ id }: any) => `${PlayType.SPEED} ${id}`,
 };
 
@@ -15,6 +16,11 @@ export class Pacman extends APacman {
     SPEED: new SpeedStrategy(),
     COLLECTOR: new CollectorStrategy(),
   };
+  private fast = 0;
+
+  isFast(): boolean {
+    return this.fast > 0;
+  }
 
   selectStrategy(pacman: Pacman): AStrategy {
     if (pacman.abilityAvailable()) {
@@ -25,15 +31,23 @@ export class Pacman extends APacman {
   }
 
   willPlay(graph: Graph) {
-    graph.updateNode(this.getPosition().asKey(), 0);
+    this.savedMoves.forEach((move) => {
+      graph.updateNode(move, 0);
+    });
 
     this.strategy = this.selectStrategy(this);
 
     this.strategy.willPlay(this, graph);
   }
 
-  play(): string {
-    const action: Play = this.strategy.play(this);
+  play(graph: Graph, facilitator: Facilitator): string {
+    const action: Play = this.strategy.play(this, graph, facilitator);
+
+    if (action.type === PlayType.SPEED) {
+      this.fast = 5;
+    } else if (this.fast > 0) {
+      this.fast -= 1;
+    }
 
     return PLAYS[action.type](action.param);
   }

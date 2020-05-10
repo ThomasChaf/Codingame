@@ -1,13 +1,9 @@
 import { Graph } from "../board/Graph";
 import { Position } from "../Position";
-import { AStrategy, PlayType, Play, EStrategyAvancement, EStrategyType } from "./AStrategy";
+import { PlayType, Play, EStrategyAvancement, EStrategyType } from "./AStrategy";
 import { Pacman } from "../pacmans/Pacman";
-
-type Result = {
-  path: string[];
-  value: number;
-  position: Position;
-};
+import { Facilitator } from "../Facilitator";
+import { GoalStrategy, Goal } from "./GoalStrategy";
 
 type Done = {
   [key: string]: boolean;
@@ -19,33 +15,12 @@ type Todo = {
   nexts: string[];
 };
 
-export class CollectorStrategy extends AStrategy {
+export class CollectorStrategy extends GoalStrategy {
   public type: EStrategyType = EStrategyType.COLLECTOR;
-  private goal?: Result;
 
-  ensureTravel(pacman: Pacman, graph: Graph): boolean {
-    if (!this.goal) throw new Error("No goal set on willPlay");
-
-    if (pacman.getPosition().asKey() === this.goal.path[0]) {
-      this.goal.path.shift();
-    }
-
-    // console.error("DEBUG:", "PATH:", pacman.id, this.goal.path.join("|"));
-
-    for (const i in this.goal.path) {
-      if (graph.getByKey(this.goal.path[i]).hasPacman) {
-        console.error("DEBUG:", "HAS TROUBLE", pacman.id, this.goal.path[i]);
-
-        return true;
-      }
-    }
-
-    return false;
-  }
-
-  parcours(graph: Graph, start: Position, pacman: Pacman): Result {
+  parcours(graph: Graph, start: Position, pacman: Pacman): Goal {
     const done: Done = {};
-    let result: Result = {
+    let result: Goal = {
       path: [],
       position: new Position(17, 5),
       value: 0,
@@ -79,7 +54,7 @@ export class CollectorStrategy extends AStrategy {
               position: node.position,
             };
           }
-          console.error("DEBUG:", "DONE:", pacman.id, node.position.asKey(), total);
+          // console.error("DEBUG:", "DONE:", pacman.id, node.position.asKey(), total);
 
           nextTodos.push({
             path: [...todo.path, nextKey],
@@ -93,6 +68,7 @@ export class CollectorStrategy extends AStrategy {
     }
 
     console.error("DEBUG:", "NEW GOAL:", pacman.id, result.position.asKey(), result.value);
+    console.error("DEBUG:", "NEW PATH", result.path.join("|"));
 
     return result;
   }
@@ -106,21 +82,34 @@ export class CollectorStrategy extends AStrategy {
       this.goal = this.parcours(graph, pacman.getPosition(), pacman);
       this.avancement = EStrategyAvancement.IN_PROGRESS;
     } else if (this.avancement === EStrategyAvancement.IN_PROGRESS) {
-      const hasTrouble = this.ensureTravel(pacman, graph);
+      this.updateGoal(pacman);
+
+      const hasTrouble = this.isGoalDangerous(pacman, graph);
       if (hasTrouble) {
-        this.avancement = EStrategyAvancement.COMPLETED;
+        this.goal = this.parcours(graph, pacman.getPosition(), pacman);
       }
     }
   }
 
-  play(pacman: Pacman): Play {
+  play(pacman: Pacman, graph: Graph, facilitator: Facilitator): Play {
     if (!this.goal) throw new Error("No goal set on willPlay");
+
+    let to = this.goal.path[2] ? graph.getByKey(this.goal.path[2]).position : this.goal.position;
+    let opt = "";
+
+    if (!facilitator.shouldWait(this.goal.path[0])) {
+      facilitator.addMove(this.goal.path[0]);
+    } else {
+      to = pacman.getPosition();
+      opt = " WAIT";
+    }
 
     return {
       type: PlayType.MOVE,
       param: {
         id: pacman.id,
-        goal: this.goal.position,
+        to,
+        opt,
       },
     };
   }

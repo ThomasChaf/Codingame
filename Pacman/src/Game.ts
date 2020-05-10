@@ -3,9 +3,11 @@ import { Position, asKey } from "./Position";
 import { Store } from "./pacmans/Store";
 import { Pacman } from "./pacmans/Pacman";
 import { Enemy } from "./pacmans/Enemy";
+import { Facilitator } from "./Facilitator";
 
 export class Game {
   private graph: Graph;
+  private facilitator: Facilitator = new Facilitator();
   private myPacman: Store<Pacman> = new Store<Pacman>(Pacman);
   private enemies: Store<Enemy> = new Store<Enemy>(Enemy);
 
@@ -30,7 +32,7 @@ export class Game {
     if (!store.exist(pacId)) {
       store.add(pacId, { position, abilityCooldown });
     } else {
-      store.get(pacId).update({ position, abilityCooldown });
+      store.get(pacId).update(this.graph, { position, abilityCooldown });
     }
 
     if (mine) store.isAlive(pacId);
@@ -45,6 +47,7 @@ export class Game {
   }
 
   public willPlay() {
+    this.facilitator.reset();
     this.graph.addEntities(this.myPacman, this.enemies);
 
     this.enemies.forEach((pac) => pac.willPlay(this.graph));
@@ -53,7 +56,7 @@ export class Game {
   }
 
   public play() {
-    console.log(this.myPacman.map((pac) => pac.play()).join("|"));
+    console.log(this.myPacman.map((pac) => pac.play(this.graph, this.facilitator)).join("|"));
   }
 
   public didPlay() {

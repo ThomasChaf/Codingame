@@ -6,7 +6,7 @@ import { Store } from "../pacmans/Store";
 class GraphNode {
   public position: Position;
   public edges: string[] = [];
-  public value: number = 0;
+  public value: number = 1;
   public hasPacman = false;
 
   constructor(position: Position) {

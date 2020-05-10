@@ -1,5 +1,6 @@
 import { Pacman } from "../pacmans/Pacman";
 import { Graph } from "../board/Graph";
+import { Facilitator } from "../Facilitator";
 
 export enum EStrategyType {
   COLLECTOR = "COLLECTOR",
@@ -25,7 +26,7 @@ export abstract class AStrategy {
   public abstract type: EStrategyType;
   protected avancement: EStrategyAvancement = EStrategyAvancement.IN_PROGRESS;
 
-  abstract play(pacman: Pacman): Play;
+  abstract play(pacman: Pacman, graph: Graph, facilitator: Facilitator): Play;
 
   abstract willPlay(pacman: Pacman, graph: Graph): void;
 }

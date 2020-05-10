@@ -1,6 +1,12 @@
 cat src/board/*.ts > out-1.ts
-cat src/strategy/*.ts >> out-1.ts
+
+cat src/strategy/AStrategy.ts >> out-1.ts
+cat src/strategy/GoalStrategy.ts >> out-1.ts
+cat src/strategy/CollectorStrategy.ts >> out-1.ts
+cat src/strategy/SpeedStrategy.ts >> out-1.ts
+
 cat src/pacmans/*.ts >> out-1.ts
+
 cat src/*.ts >> out-1.ts
 
 tail -n +13 main.ts >> out-1.ts
