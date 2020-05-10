@@ -3,6 +3,7 @@ import { Graph } from "../board/Graph";
 import { Play, PlayType, AStrategy } from "../strategy/AStrategy";
 import { CollectorStrategy } from "../strategy/CollectorStrategy";
 import { SpeedStrategy } from "../strategy/SpeedStrategy";
+import { RandomStrategy } from "../strategy/RandomStrategy";
 import { Facilitator } from "../Facilitator";
 
 export const PLAYS = {
@@ -11,7 +12,7 @@ export const PLAYS = {
 };
 
 export class Pacman extends APacman {
-  private strategy: AStrategy = {} as AStrategy;
+  private strategy: AStrategy = new RandomStrategy();
   private strategies = {
     SPEED: new SpeedStrategy(),
     COLLECTOR: new CollectorStrategy(),
@@ -31,9 +32,9 @@ export class Pacman extends APacman {
   }
 
   willPlay(graph: Graph) {
-    this.savedMoves.forEach((move) => {
-      graph.updateNode(move, 0);
-    });
+    this.savedMoves.forEach((move) => graph.updateNode(move, 0));
+
+    this.strategy.update(this, graph);
 
     this.strategy = this.selectStrategy(this);
 

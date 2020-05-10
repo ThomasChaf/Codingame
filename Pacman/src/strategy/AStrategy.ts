@@ -5,6 +5,7 @@ import { Facilitator } from "../Facilitator";
 export enum EStrategyType {
   COLLECTOR = "COLLECTOR",
   SPEED = "SPEED",
+  RANDOM = "RANDOM",
 }
 
 export enum EStrategyAvancement {
@@ -25,6 +26,8 @@ export type Play = {
 export abstract class AStrategy {
   public abstract type: EStrategyType;
   protected avancement: EStrategyAvancement = EStrategyAvancement.IN_PROGRESS;
+
+  abstract update(pacman: Pacman, graph: Graph): void;
 
   abstract play(pacman: Pacman, graph: Graph, facilitator: Facilitator): Play;
 

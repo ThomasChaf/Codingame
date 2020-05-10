@@ -68,9 +68,15 @@ export class CollectorStrategy extends GoalStrategy {
     }
 
     console.error("DEBUG:", "NEW GOAL:", pacman.id, result.position.asKey(), result.value);
-    console.error("DEBUG:", "NEW PATH", result.path.join("|"));
+    // console.error("DEBUG:", "NEW PATH", result.path.join("|"));
 
     return result;
+  }
+
+  update(pacman: Pacman, graph: Graph) {
+    if (this.avancement === EStrategyAvancement.IN_PROGRESS) {
+      this.updateGoal(pacman);
+    }
   }
 
   willPlay(pacman: Pacman, graph: Graph) {
@@ -82,8 +88,6 @@ export class CollectorStrategy extends GoalStrategy {
       this.goal = this.parcours(graph, pacman.getPosition(), pacman);
       this.avancement = EStrategyAvancement.IN_PROGRESS;
     } else if (this.avancement === EStrategyAvancement.IN_PROGRESS) {
-      this.updateGoal(pacman);
-
       const hasTrouble = this.isGoalDangerous(pacman, graph);
       if (hasTrouble) {
         this.goal = this.parcours(graph, pacman.getPosition(), pacman);
