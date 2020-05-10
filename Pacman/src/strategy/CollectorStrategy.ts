@@ -1,77 +1,11 @@
 import { PacmanGraph } from "../board/PacmanGraph";
-import { Position } from "../Position";
 import { PlayType, Play, EStrategyAvancement, EStrategyType } from "./AStrategy";
 import { Pacman } from "../pacmans/Pacman";
 import { Facilitator } from "../Facilitator";
-import { GoalStrategy, Goal } from "./GoalStrategy";
-
-type Done = {
-  [key: string]: boolean;
-};
-
-type Todo = {
-  path: string[];
-  current: number;
-  nexts: string[];
-};
+import { GoalStrategy } from "./GoalStrategy";
 
 export class CollectorStrategy extends GoalStrategy {
   public type: EStrategyType = EStrategyType.COLLECTOR;
-
-  parcours(graph: PacmanGraph, start: Position, pacman: Pacman): Goal {
-    const done: Done = {};
-    let result: Goal = {
-      path: [],
-      position: new Position(17, 5),
-      value: 0,
-    };
-
-    let todos: Todo[] = [
-      {
-        path: [],
-        current: 0,
-        nexts: graph.get(start).edges,
-      },
-    ];
-    let depth = 1;
-
-    while (depth < 20) {
-      let nextTodos: Todo[] = [];
-      todos.forEach((todo: Todo) => {
-        todo.nexts.forEach((nextKey: string) => {
-          if (done[nextKey]) return;
-
-          const node = graph.getByKey(nextKey);
-          if (node.hasObstacle()) return;
-
-          const total = Math.max(todo.current - 10 * depth, 0) + (20 - depth) * node.value;
-
-          done[node.position.asKey()] = true;
-          if (result.value < total) {
-            result = {
-              path: [...todo.path, nextKey],
-              value: total,
-              position: node.position,
-            };
-          }
-          // console.error("DEBUG:", "DONE:", pacman.id, node.position.asKey(), total);
-
-          nextTodos.push({
-            path: [...todo.path, nextKey],
-            current: total,
-            nexts: node.edges,
-          });
-        });
-      });
-      todos = nextTodos;
-      depth += 1;
-    }
-
-    console.error("DEBUG:", "NEW GOAL:", pacman.id, result.position.asKey(), result.value);
-    // console.error("DEBUG:", "NEW PATH", result.path.join("|"));
-
-    return result;
-  }
 
   update(pacman: Pacman, graph: PacmanGraph) {
     if (this.avancement === EStrategyAvancement.IN_PROGRESS) {
@@ -85,12 +19,12 @@ export class CollectorStrategy extends GoalStrategy {
     }
 
     if (this.avancement === EStrategyAvancement.COMPLETED) {
-      this.goal = this.parcours(graph, pacman.getPosition(), pacman);
+      this.goal = graph.findBestGoal(pacman);
       this.avancement = EStrategyAvancement.IN_PROGRESS;
     } else if (this.avancement === EStrategyAvancement.IN_PROGRESS) {
       const hasTrouble = this.isGoalDangerous(pacman, graph);
       if (hasTrouble) {
-        this.goal = this.parcours(graph, pacman.getPosition(), pacman);
+        this.goal = graph.findBestGoal(pacman);
       }
     }
   }

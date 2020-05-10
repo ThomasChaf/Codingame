@@ -22,6 +22,7 @@ const debugreadline = (): string => {
 import { Game } from "./src/Game";
 import { Factory } from "./src/board/Factory";
 import { Position } from "./src/Position";
+import { EWeapon, parseWeapon } from "./src/utils/Weapon";
 
 var inputs: string[] = debugreadline().split(" ");
 const width: number = parseInt(inputs[0]);
@@ -52,7 +53,7 @@ while (true) {
     const mine: boolean = inputs[1] !== "0"; // true if this pac is yours
     const x: number = parseInt(inputs[2]); // position in the grid
     const y: number = parseInt(inputs[3]); // position in the grid
-    const weapon: string = inputs[4]; // unused in wood leagues
+    const weapon: EWeapon = parseWeapon(inputs[4]); // unused in wood leagues
     const speedTurnsLeft: number = parseInt(inputs[5]); // unused in wood leagues
     const abilityCooldown: number = parseInt(inputs[6]); // unused in wood leagues
 

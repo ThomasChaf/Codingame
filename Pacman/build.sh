@@ -1,5 +1,7 @@
 cat src/board/*.ts > out-1.ts
 
+cat src/utils/*.ts >> out-1.ts
+
 cat src/strategy/AStrategy.ts >> out-1.ts
 cat src/strategy/GoalStrategy.ts >> out-1.ts
 cat src/strategy/CollectorStrategy.ts >> out-1.ts

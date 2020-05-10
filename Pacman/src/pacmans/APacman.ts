@@ -1,16 +1,17 @@
 import { Position } from "../Position";
 import { PacmanGraph, PacmanMeta } from "../board/PacmanGraph";
+import { EWeapon } from "../utils/Weapon";
 
 export interface PacmanProperties {
   fast: number;
   position: Position;
   abilityCooldown: number;
-  weapon: string;
+  weapon: EWeapon;
 }
 
 export abstract class APacman {
   protected position: Position;
-  protected weapon: string;
+  protected weapon: EWeapon;
   protected fast: number;
   protected abilityCooldown: number;
   public savedMoves: string[] = [];

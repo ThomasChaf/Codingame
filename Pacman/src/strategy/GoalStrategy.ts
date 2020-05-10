@@ -5,7 +5,7 @@ import { PacmanGraph } from "../board/PacmanGraph";
 
 export type Goal = {
   path: string[];
-  value: number;
+  score: number;
   position: Position;
 };
 

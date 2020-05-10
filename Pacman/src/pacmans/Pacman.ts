@@ -6,11 +6,12 @@ import { SpeedStrategy } from "../strategy/SpeedStrategy";
 import { RandomStrategy } from "../strategy/RandomStrategy";
 import { Facilitator } from "../Facilitator";
 import { SurvivorStrategy } from "../strategy/SurvivorStrategy";
+import { isBestWeapon } from "../utils/Weapon";
 
 export const PLAYS = {
   [PlayType.MOVE]: ({ id, to, opt = "" }: any) => `${PlayType.MOVE} ${id} ${to.x} ${to.y}${opt}`,
   [PlayType.SPEED]: ({ id }: any) => `${PlayType.SPEED} ${id}`,
-  [PlayType.SWITCH]: ({ id, weapon }: any) => `${PlayType.SWITCH} ${id} ${weapon}`,
+  [PlayType.SWITCH]: ({ id, weapon }: any) => `${PlayType.SWITCH} ${id} ${weapon} SWITCH`,
 };
 
 export class Pacman extends APacman {
@@ -28,11 +29,7 @@ export class Pacman extends APacman {
   faceWeakerOpponent = (other: PacmanMeta): boolean => {
     if (!other || other.mine) return true;
 
-    if (this.weapon === "ROCK" && other.weapon === "SCISSORS") return true;
-    if (this.weapon === "SCISSORS" && other.weapon === "PAPER") return true;
-    if (this.weapon === "PAPER" && other.weapon === "ROCK") return true;
-
-    return false;
+    return isBestWeapon(this.weapon, other.weapon);
   };
 
   selectStrategy(): AStrategy {

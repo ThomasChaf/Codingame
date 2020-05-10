@@ -4,6 +4,7 @@ import { Store } from "./pacmans/Store";
 import { Pacman } from "./pacmans/Pacman";
 import { Enemy } from "./pacmans/Enemy";
 import { Facilitator } from "./Facilitator";
+import { EWeapon } from "./utils/Weapon";
 
 export class Game {
   private graph: PacmanGraph;
@@ -23,7 +24,7 @@ export class Game {
     pacId: number,
     mine: boolean,
     position: Position,
-    weapon: string,
+    weapon: EWeapon,
     fast: number,
     abilityCooldown: number
   ) => {
