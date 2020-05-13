@@ -4,7 +4,7 @@ import { Store } from "./pacmans/Store";
 import { Pacman } from "./pacmans/Pacman";
 import { Enemy } from "./pacmans/Enemy";
 import { Facilitator } from "./Facilitator";
-import { EWeapon } from "./utils/Weapon";
+import { EWeapon, parseWeapon } from "./utils/Weapon";
 import { PelletManager } from "./utils/PelletManager";
 
 export class Game {
@@ -27,10 +27,13 @@ export class Game {
     pacId: number,
     mine: boolean,
     position: Position,
-    weapon: EWeapon,
+    type: string,
     fast: number,
     abilityCooldown: number
   ) => {
+    if (type === "DEAD") return;
+
+    const weapon = parseWeapon(type);
     const store = mine ? this.myPacman : this.enemies;
 
     if (!store.exist(pacId)) {
