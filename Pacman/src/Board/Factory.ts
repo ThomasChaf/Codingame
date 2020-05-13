@@ -1,12 +1,5 @@
 import { PacmanGraph } from "./PacmanGraph";
-import { Position } from "../Position";
-
-const DIRECTIONS = [
-  [+1, 0],
-  [0, +1],
-  [-1, 0],
-  [0, -1],
-];
+import { Position, DIRECTIONS } from "../Position";
 
 class CoarseBoard {
   private rows: string[];

@@ -12,10 +12,12 @@ const readline = (): string => {
 
 // ======================================================================================================
 
-const debugreadline = (): string => {
+const debugreadline = (log: boolean = false): string => {
   const line = readline();
 
-  // console.error(line);
+  if (log) {
+    console.error(line);
+  }
   return line;
 };
 
@@ -62,6 +64,8 @@ while (true) {
 
   game.didUpdatePac();
 
+  game.wllUpdatePellet();
+
   const visiblePelletCount: number = parseInt(debugreadline()); // all pellets in sight
 
   for (let i = 0; i < visiblePelletCount; i++) {
@@ -71,6 +75,8 @@ while (true) {
     const value: number = parseInt(inputs[2]); // amount of points this pellet is worth
     game.updatePellet(x, y, value);
   }
+
+  game.didUpdatePellet();
 
   game.willPlay();
 

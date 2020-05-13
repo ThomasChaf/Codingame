@@ -49,9 +49,10 @@ export abstract class APacman {
 
   update(graph: PacmanGraph, properties: PacmanProperties) {
     this.computeMove(graph, properties.position);
-    // console.error("DEBUG:", "MOVE [", this.savedMoves.join(","), "]");
     this.abilityCooldown = properties.abilityCooldown;
     this.position = properties.position;
+    this.fast = properties.fast;
+    this.weapon = properties.weapon;
   }
 
   getPosition(): Position {

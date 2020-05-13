@@ -8,9 +8,7 @@ export class SpeedStrategy extends AStrategy {
 
   update(pacman: Pacman, graph: PacmanGraph) {}
 
-  willPlay(pacman: Pacman, graph: PacmanGraph) {}
-
   play(pacman: Pacman, graph: PacmanGraph, facilitator: Facilitator): Play {
-    return { type: PlayType.SPEED, param: { id: pacman.id } } as Play;
+    return { type: PlayType.SPEED, param: { id: pacman.id, opt: "SPEED" } } as Play;
   }
 }

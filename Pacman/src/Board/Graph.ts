@@ -1,4 +1,4 @@
-import { Position } from "../Position";
+import { Position, asKey } from "../Position";
 
 export class GraphNode<T> {
   public key: string;
@@ -18,6 +18,10 @@ export class GraphNode<T> {
 
   hasObstacle() {
     return this.meta !== null;
+  }
+
+  getMeta() {
+    return this.meta;
   }
 }
 
@@ -98,6 +102,27 @@ export class Graph<T> {
       });
       todos = nextTodos;
       depth += 1;
+    }
+  }
+
+  straightTraverse(start: Position, xInc: number, yInc: number, cb: TraverseCallback<T>) {
+    let pos;
+    const todo: Position[] = [start];
+    let depth = 1;
+
+    while ((pos = todo.shift())) {
+      const node = this.get(pos);
+      const nextKey = asKey(pos.x + xInc, pos.y + yInc);
+
+      if (node.edges.includes(nextKey)) {
+        const nextNode = this.getByKey(nextKey);
+
+        const { end } = cb(depth, nextNode, null, []);
+        if (end) return;
+
+        depth += 1;
+        todo.push(nextNode.position);
+      }
     }
   }
 }

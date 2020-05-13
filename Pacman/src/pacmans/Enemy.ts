@@ -3,7 +3,7 @@ import { APacman } from "./APacman";
 
 export class Enemy extends APacman {
   toMeta(): PacmanMeta {
-    return { mine: false, id: this.id, weapon: this.weapon };
+    return { mine: false, id: this.id, weapon: this.weapon, position: this.getPosition() };
   }
 
   willPlay(graph: PacmanGraph) {

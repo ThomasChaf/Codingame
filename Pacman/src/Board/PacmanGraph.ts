@@ -2,15 +2,17 @@ import { Graph, GraphNode } from "./Graph";
 import { Pacman } from "../pacmans/Pacman";
 import { Enemy } from "../pacmans/Enemy";
 import { Store } from "../pacmans/Store";
-import { Position } from "../Position";
-import { Goal } from "../strategy/GoalStrategy";
+import { Position, DIRECTIONS, sameDirection } from "../Position";
+import { Goal } from "../strategy/Goal";
 import { EWeapon } from "../utils/Weapon";
+import { Facilitator } from "../Facilitator";
 
 export type PacmanMeta = {
   mine: boolean;
   id: number;
   weapon: EWeapon;
-} | null;
+  position: Position;
+};
 
 export type Danger = PacmanMeta;
 
@@ -33,27 +35,23 @@ export class PacmanGraph extends Graph<PacmanMeta> {
     });
   }
 
-  findBestGoal(pacman: Pacman): Goal {
-    let result: Goal = {
-      score: 0,
-      path: [],
-      position: new Position(17, 5),
-    };
+  findBestGoal(pacman: Pacman, facilitator: Facilitator): Goal {
+    let result: Goal = new Goal([], 0, new Position(17, 5));
 
     const callback = (depth: number, node: GraphNode<PacmanMeta>, keep: any, path: string[]) => {
-      if (node.hasObstacle()) return { end: true };
+      if (node.getMeta()) return { end: true };
+      if (node.position.sameAs(pacman.radar.escapeFrom)) {
+        console.error("DEBUG: BAD HISTORY ON", node.key);
+        return { end: true };
+      }
       const { score: prevScore = 0 } = keep || {};
 
-      const score = Math.max(prevScore - 10 * depth, 0) + (20 - depth) * node.value;
+      const value = facilitator.isAvailable(pacman, node.key) ? node.value : 0;
+      const score = Math.max(prevScore - 10 * (depth - 1), 0) + (20 - depth) * value;
 
       if (result.score < score) {
-        result = {
-          score,
-          path: [...path, node.key],
-          position: node.position,
-        };
+        result = new Goal([...path, node.key], score, node.position);
       }
-      // console.error("DEBUG:", "DONE:", pacman.id, node.position.asKey(), total);
 
       return {
         keep: { score },
@@ -63,24 +61,61 @@ export class PacmanGraph extends Graph<PacmanMeta> {
 
     this.traverse(pacman.getPosition(), 20, callback);
 
-    console.error("DEBUG:", "NEW GOAL:", pacman.id, result.position.asKey(), result.score);
-    // console.error("DEBUG:", "NEW PATH", result.path.join("|"));
+    console.error("DEBUG:", "NEW GOAL:", pacman.id, result.position.asKey(), result.score, result.path.join("|"));
     return result;
   }
 
-  findDangerAround(pacman: Pacman): Danger[] {
-    let dangers: Danger[] = [];
+  findEnemiesAround(pacman: Pacman): Danger | null {
+    let danger: Danger | null = null;
 
     const callback = (depth: number, node: GraphNode<PacmanMeta>, keep: any, path: string[]) => {
-      if (!pacman.faceWeakerOpponent(node.meta)) {
-        dangers.push(node.meta);
+      if (node.meta && !node.meta.mine) {
+        danger = node.meta;
+        return { end: true };
       }
 
       return { end: false };
     };
 
-    this.traverse(pacman.getPosition(), 2, callback);
+    this.traverse(pacman.getPosition(), 3, callback);
 
-    return dangers;
+    return danger;
+  }
+
+  findSafePosition(pacman: Pacman, danger: Danger): Position {
+    let safePosition = pacman.getPosition();
+
+    const callback = (depth: number, node: GraphNode<PacmanMeta>, keep: any, path: string[]) => {
+      if (node.meta && !node.meta.mine) return { end: true };
+
+      if (sameDirection(node.position, danger.position, pacman.getPosition())) {
+        console.error("DEBUG:", "HELP SAME DIRECTION FOR NODE", node.key, "AS DANGER:", danger.position.asKey());
+        return { end: true };
+      }
+
+      if (depth === 4 && !node.meta) {
+        safePosition = node.position;
+      }
+
+      return { end: false };
+    };
+
+    this.traverse(pacman.getPosition(), 5, callback);
+
+    return safePosition;
+  }
+
+  getVisibility(pacman: Pacman): string[] {
+    const visibility: { [key: string]: boolean } = {};
+
+    DIRECTIONS.forEach(([incX, incY]) => {
+      this.straightTraverse(pacman.getPosition(), incX, incY, (depth, node) => {
+        visibility[node.key] = true;
+
+        return { end: false };
+      });
+    });
+
+    return Object.keys(visibility);
   }
 }

@@ -5,12 +5,14 @@ import { Pacman } from "./pacmans/Pacman";
 import { Enemy } from "./pacmans/Enemy";
 import { Facilitator } from "./Facilitator";
 import { EWeapon } from "./utils/Weapon";
+import { PelletManager } from "./utils/PelletManager";
 
 export class Game {
   private graph: PacmanGraph;
   private facilitator: Facilitator = new Facilitator();
   private myPacman: Store<Pacman> = new Store<Pacman>(Pacman);
   private enemies: Store<Enemy> = new Store<Enemy>(Enemy);
+  private pelletManager: PelletManager = new PelletManager();
 
   constructor(graph: PacmanGraph) {
     this.graph = graph;
@@ -18,6 +20,7 @@ export class Game {
 
   public willUpdatePac() {
     this.myPacman.inventory();
+    this.enemies.inventory();
   }
 
   public updatePac = (
@@ -36,15 +39,24 @@ export class Game {
       store.get(pacId).update(this.graph, { position, abilityCooldown, weapon, fast });
     }
 
-    if (mine) store.isAlive(pacId);
+    store.isAlive(pacId);
   };
 
   public didUpdatePac() {
     this.myPacman.removeDiedPac();
+    this.enemies.removeDiedPac();
+  }
+
+  public wllUpdatePellet() {
+    this.pelletManager.newRound();
   }
 
   public updatePellet(x: number, y: number, value: number) {
-    this.graph.updateNode(asKey(x, y), value);
+    this.pelletManager.add(asKey(x, y), value);
+  }
+
+  public didUpdatePellet() {
+    this.pelletManager.updateGraph(this.myPacman, this.graph);
   }
 
   public willPlay() {
@@ -53,7 +65,7 @@ export class Game {
 
     this.enemies.forEach((pac) => pac.willPlay(this.graph));
 
-    this.myPacman.forEach((pac) => pac.willPlay(this.graph));
+    this.myPacman.forEach((pac) => pac.willPlay(this.graph, this.facilitator));
   }
 
   public play() {
@@ -61,6 +73,7 @@ export class Game {
   }
 
   public didPlay() {
+    this.myPacman.forEach((pac) => pac.didPlay());
     this.graph.cleanEntities(this.myPacman, this.enemies);
   }
 }

@@ -1,54 +1,36 @@
 import { PacmanGraph } from "../board/PacmanGraph";
-import { PlayType, Play, EStrategyAvancement, EStrategyType } from "./AStrategy";
+import { EStrategyAvancement, EStrategyType, Play } from "./AStrategy";
 import { Pacman } from "../pacmans/Pacman";
+import { Goal } from "./Goal";
+import { AMovementStrategy } from "./AMovementStrategy";
 import { Facilitator } from "../Facilitator";
-import { GoalStrategy } from "./GoalStrategy";
 
-export class CollectorStrategy extends GoalStrategy {
+export class CollectorStrategy extends AMovementStrategy {
   public type: EStrategyType = EStrategyType.COLLECTOR;
+  private inc: number = 0;
 
-  update(pacman: Pacman, graph: PacmanGraph) {
-    if (this.avancement === EStrategyAvancement.IN_PROGRESS) {
-      this.updateGoal(pacman);
-    }
+  public update(pacman: Pacman, graph: PacmanGraph, facilitator: Facilitator) {
+    // if (this.goal && this.avancement === EStrategyAvancement.IN_PROGRESS) {
+    //   this.goal.updatePath(pacman);
+    //   facilitator.updateGoal(pacman, this.goal);
+    // }
+
+    // if ((this.goal && pacman.getPosition().sameAs(this.goal.position)) || this.inc === 3) {
+    //   this.avancement = EStrategyAvancement.COMPLETED;
+    // }
+
+    // if (this.avancement === EStrategyAvancement.BEGIN || this.avancement === EStrategyAvancement.COMPLETED) {
+    this.goal = graph.findBestGoal(pacman, facilitator);
+    facilitator.updateGoal(pacman, this.goal);
+    //   this.inc = 0;
+
+    //   this.avancement = EStrategyAvancement.IN_PROGRESS;
+    // }
   }
 
-  willPlay(pacman: Pacman, graph: PacmanGraph) {
-    if (!this.goal || pacman.getPosition().sameAs(this.goal.position)) {
-      this.avancement = EStrategyAvancement.COMPLETED;
-    }
+  public play(pacman: Pacman, graph: PacmanGraph, facilitator: Facilitator): Play {
+    // this.inc += 1;
 
-    if (this.avancement === EStrategyAvancement.COMPLETED) {
-      this.goal = graph.findBestGoal(pacman);
-      this.avancement = EStrategyAvancement.IN_PROGRESS;
-    } else if (this.avancement === EStrategyAvancement.IN_PROGRESS) {
-      const hasTrouble = this.isGoalDangerous(pacman, graph);
-      if (hasTrouble) {
-        this.goal = graph.findBestGoal(pacman);
-      }
-    }
-  }
-
-  play(pacman: Pacman, graph: PacmanGraph, facilitator: Facilitator): Play {
-    if (!this.goal) throw new Error("No goal set on willPlay");
-
-    let to = this.goal.path[2] ? graph.getByKey(this.goal.path[2]).position : this.goal.position;
-    let opt = "";
-
-    if (!facilitator.shouldWait(this.goal.path[0])) {
-      facilitator.addMove(this.goal.path[0]);
-    } else {
-      to = pacman.getPosition();
-      opt = " WAIT";
-    }
-
-    return {
-      type: PlayType.MOVE,
-      param: {
-        id: pacman.id,
-        to,
-        opt,
-      },
-    };
+    return this.computeMovement(pacman, graph, facilitator);
   }
 }

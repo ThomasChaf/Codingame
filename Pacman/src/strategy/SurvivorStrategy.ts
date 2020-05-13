@@ -1,29 +1,43 @@
-import { AStrategy, PlayType, Play, EStrategyType } from "./AStrategy";
+import { PlayType, Play, EStrategyType, AStrategy } from "./AStrategy";
 import { Pacman } from "../pacmans/Pacman";
 import { Facilitator } from "../Facilitator";
 import { PacmanGraph, Danger } from "../board/PacmanGraph";
 import { getCounter } from "../utils/Weapon";
+import { Goal } from "./Goal";
+import { AMovementStrategy } from "./AMovementStrategy";
 
 export class SurvivorStrategy extends AStrategy {
-  private dangers: Danger[] = [];
+  // public hasEscaped: boolean = false;
+  private danger: Danger | null = null;
   public type: EStrategyType = EStrategyType.SURVIVOR;
 
-  hasDanger(): boolean {
-    return this.dangers.length > 0;
+  update(target: Danger) {
+    this.danger = target;
   }
 
-  update(pacman: Pacman, graph: PacmanGraph) {
-    this.dangers = graph.findDangerAround(pacman);
+  escape(pacman: Pacman, graph: PacmanGraph): Play {
+    if (!this.danger) throw "No danger on survivor";
+
+    const position = graph.findSafePosition(pacman, this.danger);
+    pacman.radar.setEscapeFrom(pacman.getPosition());
+
+    return { type: PlayType.MOVE, param: { id: pacman.id, to: position, opt: "HELP" } } as Play;
   }
 
-  willPlay(pacman: Pacman, graph: PacmanGraph) {}
+  switch(pacman: Pacman, graph: PacmanGraph): Play {
+    if (!this.danger) throw "No danger on survivor";
+
+    const weapon = getCounter(this.danger.weapon);
+
+    return { type: PlayType.SWITCH, param: { id: pacman.id, weapon, opt: "SWITCH" } } as Play;
+  }
 
   play(pacman: Pacman, graph: PacmanGraph, facilitator: Facilitator): Play {
-    const danger = this.dangers[0];
-    if (!danger) throw "No danger on survivor";
+    if (!this.danger) throw "No danger on survivor";
 
-    const weapon = getCounter(danger.weapon);
-
-    return { type: PlayType.SWITCH, param: { id: pacman.id, weapon } } as Play;
+    if (pacman.abilityAvailable()) {
+      return this.switch(pacman, graph);
+    }
+    return this.escape(pacman, graph);
   }
 }

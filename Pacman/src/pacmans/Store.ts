@@ -40,8 +40,6 @@ export class Store<T> {
 
   removeDiedPac() {
     this.ids.forEach((id) => {
-      console.error("DEBUG:", "REMOVE", id);
-
       delete this.store[id];
     });
   }
