@@ -8,7 +8,7 @@ type Moves = {
 };
 
 type Previsions = {
-  [key: string]: number;
+  [key: string]: Pacman;
 };
 
 export class Facilitator {
@@ -43,12 +43,12 @@ export class Facilitator {
   }
 
   isAvailable(pacman: Pacman, key: string): boolean {
-    return !this.willBeVisited[key] || this.willBeVisited[key] === pacman.id;
+    return !this.willBeVisited[key] || this.willBeVisited[key].id === pacman.id;
   }
 
   updateGoal(pacman: Pacman, goal: Goal) {
     goal.path.forEach((key: string) => {
-      this.willBeVisited[key] = pacman.id;
+      this.willBeVisited[key] = pacman;
     });
   }
 }

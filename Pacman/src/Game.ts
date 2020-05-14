@@ -4,7 +4,7 @@ import { Store } from "./pacmans/Store";
 import { Pacman } from "./pacmans/Pacman";
 import { Enemy } from "./pacmans/Enemy";
 import { Facilitator } from "./Facilitator";
-import { EWeapon, parseWeapon } from "./utils/Weapon";
+import { parseWeapon } from "./utils/Weapon";
 import { PelletManager } from "./utils/PelletManager";
 
 export class Game {
@@ -76,7 +76,6 @@ export class Game {
   }
 
   public didPlay() {
-    this.myPacman.forEach((pac) => pac.didPlay());
     this.graph.cleanEntities(this.myPacman, this.enemies);
   }
 }

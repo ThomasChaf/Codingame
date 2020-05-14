@@ -11,12 +11,6 @@ export enum EStrategyType {
   WARN = "WARN",
 }
 
-export enum EStrategyAvancement {
-  BEGIN,
-  IN_PROGRESS,
-  COMPLETED,
-}
-
 export enum PlayType {
   MOVE = "MOVE",
   SPEED = "SPEED",
@@ -30,7 +24,6 @@ export type Play = {
 
 export abstract class AStrategy {
   public abstract type: EStrategyType;
-  public avancement: EStrategyAvancement = EStrategyAvancement.BEGIN;
 
   abstract play(pacman: Pacman, graph: PacmanGraph, facilitator: Facilitator): Play;
 }

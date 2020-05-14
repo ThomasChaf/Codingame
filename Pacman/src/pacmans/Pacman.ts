@@ -1,6 +1,6 @@
 import { APacman } from "./APacman";
-import { PacmanGraph, PacmanMeta, Danger } from "../board/PacmanGraph";
-import { Play, PlayType, AStrategy, EStrategyType, EStrategyAvancement } from "../strategy/AStrategy";
+import { PacmanGraph, PacmanMeta } from "../board/PacmanGraph";
+import { Play, PlayType, AStrategy } from "../strategy/AStrategy";
 import { CollectorStrategy } from "../strategy/CollectorStrategy";
 import { SpeedStrategy } from "../strategy/SpeedStrategy";
 import { RandomStrategy } from "../strategy/RandomStrategy";
@@ -9,7 +9,6 @@ import { SurvivorStrategy } from "../strategy/SurvivorStrategy";
 import { ChompStrategy } from "../strategy/ChompStrategy";
 import { isBestWeapon, getCounter } from "../utils/Weapon";
 import { Radar } from "../utils/Radar";
-import { Goal } from "../strategy/Goal";
 import { WarnStrategy } from "../strategy/WarnStrategy";
 
 export const PLAYS = {
@@ -77,11 +76,5 @@ export class Pacman extends APacman {
     const action: Play = this.strategy.play(this, graph, facilitator);
 
     return PLAYS[action.type](action.param);
-  }
-
-  didPlay() {
-    // if (this.strategy.type === EStrategyType.SURVIVOR && this.strategies.SURVIVOR.hasEscaped) {
-    //   this.strategies.COLLECTOR.avancement = EStrategyAvancement.COMPLETED;
-    // }
   }
 }
