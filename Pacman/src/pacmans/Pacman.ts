@@ -10,6 +10,7 @@ import { ChompStrategy } from "../strategy/ChompStrategy";
 import { isBestWeapon, getCounter } from "../utils/Weapon";
 import { Radar } from "../utils/Radar";
 import { WarnStrategy } from "../strategy/WarnStrategy";
+import { PelletManager } from "../utils/PelletManager";
 
 export const PLAYS = {
   [PlayType.MOVE]: ({ id, to, opt }: any) => `${PlayType.MOVE} ${id} ${to.x} ${to.y} ${opt}`,
@@ -29,7 +30,13 @@ export class Pacman extends APacman {
   };
 
   toMeta(): PacmanMeta {
-    return { mine: true, id: this.id, weapon: this.weapon, position: this.getPosition() };
+    return {
+      mine: true,
+      id: this.id,
+      weapon: this.weapon,
+      position: this.getPosition(),
+      abilityAvailable: this.abilityAvailable(),
+    };
   }
 
   faceStrongerOpponent = (other: PacmanMeta): boolean => {
@@ -37,7 +44,7 @@ export class Pacman extends APacman {
   };
 
   faceWeakerOpponent = (other: PacmanMeta): boolean => {
-    return isBestWeapon(this.weapon, other.weapon);
+    return isBestWeapon(this.weapon, other.weapon) && !other.abilityAvailable;
   };
 
   selectStrategy(): AStrategy {
@@ -54,20 +61,16 @@ export class Pacman extends APacman {
     }
 
     if (this.abilityAvailable()) {
-      if (this.radar.history && getCounter(this.radar.history.danger.weapon) !== this.weapon) {
-        return this.strategies.WARN;
-      }
-
       return this.strategies.SPEED;
     } else {
       return this.strategies.COLLECTOR;
     }
   }
 
-  willPlay(graph: PacmanGraph, facilitator: Facilitator) {
+  willPlay(graph: PacmanGraph, facilitator: Facilitator, pelletManager: PelletManager, complete: number) {
     this.radar.update(this, graph);
 
-    this.strategies.COLLECTOR.update(this, graph, facilitator);
+    this.strategies.COLLECTOR.update(this, graph, facilitator, pelletManager, complete);
 
     this.strategy = this.selectStrategy();
   }

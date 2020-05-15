@@ -6,12 +6,14 @@ import { Position, DIRECTIONS, sameDirection } from "../Position";
 import { Goal } from "../strategy/Goal";
 import { EWeapon } from "../utils/Weapon";
 import { Facilitator } from "../Facilitator";
+import { PelletManager } from "../utils/PelletManager";
 
 export type PacmanMeta = {
   mine: boolean;
   id: number;
   weapon: EWeapon;
   position: Position;
+  abilityAvailable: boolean;
 };
 
 export type Danger = PacmanMeta;
@@ -35,7 +37,7 @@ export class PacmanGraph extends Graph<PacmanMeta> {
     });
   }
 
-  findBestGoal(pacman: Pacman, facilitator: Facilitator): Goal {
+  findBestGoal(pacman: Pacman, facilitator: Facilitator, pelletManager: PelletManager, complete: number): Goal {
     let result: Goal = new Goal([], 0, new Position(17, 5));
 
     const callback = (depth: number, node: GraphNode<PacmanMeta>, keep: any, path: string[]) => {
@@ -47,7 +49,14 @@ export class PacmanGraph extends Graph<PacmanMeta> {
       const { score: prevScore = 0 } = keep || {};
 
       const value = facilitator.isAvailable(pacman, node.key) ? node.value : 0;
-      const score = Math.max(prevScore - 10 * (depth - 1), 0) + (20 - depth) * value;
+      const visibleBonus = pelletManager.isVisible(node.key) ? 3 : 1;
+
+      const score =
+        complete > 73
+          ? Math.min(prevScore, 40) + (20 - depth) * value * visibleBonus
+          : Math.min(prevScore, 110) + (20 - depth - node.leaveMalus) * value;
+
+      // if (score > 50) console.error("DEBUG:", "DONE:", pacman.id, node.key, score);
 
       if (result.score < score) {
         result = new Goal([...path, node.key], score, node.position);

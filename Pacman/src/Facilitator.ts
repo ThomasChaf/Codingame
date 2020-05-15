@@ -8,15 +8,20 @@ type Moves = {
 };
 
 type Previsions = {
-  [key: string]: Pacman;
+  [key: string]: {
+    score: number;
+    pacId: number;
+  };
 };
 
 export class Facilitator {
   private moves: Moves = {};
+  private lastPrevision: Previsions = {};
   private willBeVisited: Previsions = {};
 
   reset() {
     this.moves = {};
+    this.lastPrevision = this.willBeVisited;
     this.willBeVisited = {};
   }
 
@@ -43,12 +48,17 @@ export class Facilitator {
   }
 
   isAvailable(pacman: Pacman, key: string): boolean {
-    return !this.willBeVisited[key] || this.willBeVisited[key].id === pacman.id;
+    return !this.lastPrevision[key] || this.lastPrevision[key].pacId === pacman.id;
   }
 
   updateGoal(pacman: Pacman, goal: Goal) {
     goal.path.forEach((key: string) => {
-      this.willBeVisited[key] = pacman;
+      if (!this.willBeVisited[key] || goal.score > this.willBeVisited[key].score) {
+        this.willBeVisited[key] = {
+          pacId: pacman.id,
+          score: goal.score,
+        };
+      }
     });
   }
 }

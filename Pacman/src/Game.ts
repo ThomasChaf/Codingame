@@ -6,9 +6,11 @@ import { Enemy } from "./pacmans/Enemy";
 import { Facilitator } from "./Facilitator";
 import { parseWeapon } from "./utils/Weapon";
 import { PelletManager } from "./utils/PelletManager";
+import { Score } from "./Score";
 
 export class Game {
   private graph: PacmanGraph;
+  private score: Score = new Score();
   private facilitator: Facilitator = new Facilitator();
   private myPacman: Store<Pacman> = new Store<Pacman>(Pacman);
   private enemies: Store<Enemy> = new Store<Enemy>(Enemy);
@@ -62,13 +64,21 @@ export class Game {
     this.pelletManager.updateGraph(this.myPacman, this.graph);
   }
 
+  refreshScore(myScore: number, opponentScore: number) {
+    if (this.score.total === 0) this.score.init(this.graph, this.pelletManager, this.myPacman);
+
+    this.score.refresh(myScore, opponentScore);
+  }
+
   public willPlay() {
     this.facilitator.reset();
     this.graph.addEntities(this.myPacman, this.enemies);
 
     this.enemies.forEach((pac) => pac.willPlay(this.graph));
 
-    this.myPacman.forEach((pac) => pac.willPlay(this.graph, this.facilitator));
+    this.myPacman.forEach((pac) =>
+      pac.willPlay(this.graph, this.facilitator, this.pelletManager, this.score.complete())
+    );
   }
 
   public play() {

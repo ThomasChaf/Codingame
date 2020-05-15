@@ -3,11 +3,8 @@ import { Pacman } from "../pacmans/Pacman";
 import { Facilitator } from "../Facilitator";
 import { PacmanGraph, Danger } from "../board/PacmanGraph";
 import { getCounter } from "../utils/Weapon";
-import { Goal } from "./Goal";
-import { AMovementStrategy } from "./AMovementStrategy";
 
 export class SurvivorStrategy extends AStrategy {
-  // public hasEscaped: boolean = false;
   private danger: Danger | null = null;
   public type: EStrategyType = EStrategyType.SURVIVOR;
 

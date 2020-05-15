@@ -53,6 +53,9 @@ export class Factory {
         }
       }
     }
+
+    graph.applyMalus();
+
     return graph;
   };
 }

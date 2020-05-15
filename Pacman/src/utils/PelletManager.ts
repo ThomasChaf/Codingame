@@ -9,7 +9,11 @@ type Pellets = {
 export class PelletManager {
   private pellets: Pellets = {};
   private hasSuper: boolean = false;
-  private superPellets: Pellets = {};
+  public readonly superPellets: Pellets = {};
+
+  isVisible(key: string): boolean {
+    return !!this.pellets[key];
+  }
 
   newRound() {
     this.pellets = {};
@@ -25,7 +29,7 @@ export class PelletManager {
   add(key: string, value: number) {
     this.pellets[key] = value;
 
-    if (value === 10) this.superPellets[key] = 10;
+    if (value === 10) this.superPellets[key] = 20;
   }
 
   updateGraph(myPacman: Store<Pacman>, graph: PacmanGraph) {

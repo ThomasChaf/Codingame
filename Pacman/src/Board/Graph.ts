@@ -5,11 +5,16 @@ export class GraphNode<T> {
   public position: Position;
   public edges: string[] = [];
   public value: number = 1;
+  public leaveMalus: number = 0;
   public meta: T | null = null;
 
   constructor(key: string, position: Position) {
     this.key = key;
     this.position = position;
+  }
+
+  isLeave() {
+    return this.edges.length === 1;
   }
 
   setMeta(meta: T | null) {
@@ -49,6 +54,10 @@ type TraverseCallback<T> = (depth: number, node: GraphNode<T>, keep: any, path: 
 export class Graph<T> {
   protected nodes: NodeStore<T> = {};
 
+  get length(): number {
+    return Object.keys(this.nodes).length;
+  }
+
   addNode(pos: Position) {
     const key = pos.asKey();
     this.nodes[key] = new GraphNode(key, pos);
@@ -68,6 +77,25 @@ export class Graph<T> {
 
   addEdge(from: Position, to: Position) {
     this.nodes[from.asKey()].edges.push(to.asKey());
+  }
+
+  applyMalus() {
+    Object.keys(this.nodes).forEach((key: string) => {
+      if (this.nodes[key].isLeave()) {
+        this.nodes[key].leaveMalus = 1;
+        let prev: string = key;
+        let next: string = this.nodes[key].edges[0];
+        let malus = 2;
+        while (1) {
+          if (this.nodes[next].edges.length > 2) return;
+          this.nodes[next].leaveMalus = malus;
+
+          const nextEdge = this.nodes[next].edges.filter((k: string) => k !== prev)[0];
+          prev = next;
+          next = nextEdge;
+        }
+      }
+    });
   }
 
   traverse(start: Position, maxDepth: number, cb: TraverseCallback<T>) {

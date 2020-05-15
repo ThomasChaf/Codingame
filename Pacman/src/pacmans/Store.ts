@@ -10,6 +10,10 @@ export class Store<T> {
 
   constructor(protected Ctor: any) {}
 
+  get length(): number {
+    return Object.keys(this.store).length;
+  }
+
   add(id: number, properties: PacmanProperties) {
     this.store[id] = new this.Ctor(id, properties);
   }

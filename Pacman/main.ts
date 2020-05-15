@@ -78,6 +78,8 @@ while (true) {
 
   game.didUpdatePellet();
 
+  game.refreshScore(myScore, opponentScore);
+
   game.willPlay();
 
   game.play();
