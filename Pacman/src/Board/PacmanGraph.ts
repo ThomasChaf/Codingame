@@ -41,11 +41,10 @@ export class PacmanGraph extends Graph<PacmanMeta> {
     let result: Goal = new Goal([], 0, new Position(17, 5));
 
     const callback = (depth: number, node: GraphNode<PacmanMeta>, keep: any, path: string[]) => {
-      if (node.getMeta()) return { end: true };
-      if (node.position.sameAs(pacman.radar.escapeFrom)) {
-        console.error("DEBUG: BAD HISTORY ON", node.key);
-        return { end: true };
+      if (depth === 2) {
+        if (pacman.radar.fearDanger(pacman, node.position)) return { end: true };
       }
+      if (node.getMeta()) return { end: true };
       const { score: prevScore = 0 } = keep || {};
 
       const value = facilitator.isAvailable(pacman, node.key) ? node.value : 0;
@@ -74,12 +73,12 @@ export class PacmanGraph extends Graph<PacmanMeta> {
     return result;
   }
 
-  findEnemiesAround(pacman: Pacman): Danger | null {
-    let danger: Danger | null = null;
+  findEnemiesAround(pacman: Pacman): Danger[] {
+    const dangers: Danger[] = [];
 
     const callback = (depth: number, node: GraphNode<PacmanMeta>, keep: any, path: string[]) => {
       if (node.meta && !node.meta.mine) {
-        danger = node.meta;
+        dangers.push(node.meta);
         return { end: true };
       }
 
@@ -88,7 +87,7 @@ export class PacmanGraph extends Graph<PacmanMeta> {
 
     this.traverse(pacman.getPosition(), 3, callback);
 
-    return danger;
+    return dangers;
   }
 
   findSafePosition(pacman: Pacman, danger: Danger): Position {

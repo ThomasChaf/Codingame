@@ -1,16 +1,21 @@
 import { PlayType, Play, EStrategyType, AStrategy } from "./AStrategy";
 import { Pacman } from "../pacmans/Pacman";
 import { Facilitator } from "../Facilitator";
-import { PacmanGraph } from "../board/PacmanGraph";
+import { PacmanGraph, Danger } from "../board/PacmanGraph";
 import { getCounter } from "../utils/Weapon";
-import { PotentialDanger } from "../utils/Radar";
 
 export class WarnStrategy extends AStrategy {
   type: EStrategyType = EStrategyType.WARN;
+  danger?: Danger;
+
+  update(danger: Danger) {
+    this.danger = danger;
+  }
 
   play(pacman: Pacman, graph: PacmanGraph, facilitator: Facilitator): Play {
-    const target = (pacman.radar.history as PotentialDanger).danger;
-    const weapon = getCounter(target.weapon);
+    if (!this.danger) throw "Warn has no danger";
+
+    const weapon = getCounter(this.danger.weapon);
 
     return { type: PlayType.SWITCH, param: { id: pacman.id, weapon, opt: "WARN" } } as Play;
   }
