@@ -55,6 +55,7 @@ export class Factory {
     }
 
     graph.applyMalus();
+    graph.precomputeDistance();
 
     return graph;
   };

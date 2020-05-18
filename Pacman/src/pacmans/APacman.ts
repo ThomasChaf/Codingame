@@ -25,6 +25,14 @@ export abstract class APacman {
 
   abstract toMeta(): PacmanMeta;
 
+  public get isFast() {
+    return this.fast > 0;
+  }
+
+  public get abilityAvailable(): boolean {
+    return this.abilityCooldown === 0;
+  }
+
   computeMove(graph: PacmanGraph, newPostion: Position) {
     this.savedMoves = [];
     const from = this.position.asKey();
@@ -57,9 +65,5 @@ export abstract class APacman {
 
   getPosition(): Position {
     return this.position;
-  }
-
-  abilityAvailable(): boolean {
-    return this.abilityCooldown === 0;
   }
 }

@@ -1,3 +1,5 @@
+import { Pacman } from "./pacmans/Pacman";
+
 export const asKey = (x: number, y: number) => `${x}-${y}`;
 
 export const DIRECTIONS = [
@@ -7,7 +9,7 @@ export const DIRECTIONS = [
   [-1, 0],
 ];
 
-export const sameDirection = (p1: Position, p2: Position, goal: Position) => {
+export const sameDirection = (p1: Position, p2: Position, goal: Position): boolean => {
   const p1dirX = Math.sign(p1.x - goal.x);
   const p1dirY = Math.sign(p1.y - goal.y);
   const p2dirX = Math.sign(p2.x - goal.x);

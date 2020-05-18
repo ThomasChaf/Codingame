@@ -1,3 +1,4 @@
+import { Position } from "../Position";
 import { PlayType, Play, EStrategyType, AStrategy } from "./AStrategy";
 import { Pacman } from "../pacmans/Pacman";
 import { Facilitator } from "../Facilitator";
@@ -13,9 +14,30 @@ export class WarnStrategy extends AStrategy {
   }
 
   play(pacman: Pacman, graph: PacmanGraph, facilitator: Facilitator): Play {
-    if (!this.danger) throw "Warn has no danger";
+    const danger: Danger = this.danger as Danger;
 
-    const weapon = getCounter(this.danger.weapon);
+    let res: Position = pacman.getPosition();
+    let dist = graph.getDistance(pacman.getPosition(), danger.position);
+
+    graph.traverse(pacman.getPosition(), 5, (depth, node) => {
+      const nextDist = graph.getDistance(node.position, danger.position);
+      if (node.meta) {
+        return { end: true };
+      }
+      if (nextDist > dist) {
+        res = node.position;
+        dist = nextDist;
+      }
+      return { end: false };
+    });
+
+    const safeDist = danger.isFast ? 2 : 1;
+
+    if (dist > safeDist) {
+      return { type: PlayType.MOVE, param: { id: pacman.id, to: res, opt: "WARN" } } as Play;
+    }
+
+    const weapon = getCounter(danger.weapon);
 
     return { type: PlayType.SWITCH, param: { id: pacman.id, weapon, opt: "WARN" } } as Play;
   }

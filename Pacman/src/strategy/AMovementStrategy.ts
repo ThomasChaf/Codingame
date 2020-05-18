@@ -16,7 +16,7 @@ export abstract class AMovementStrategy extends AStrategy {
     if (!facilitator.shouldWait(graph, pacman, this.goal.path[0])) {
       facilitator.addMove(pacman, this.goal.path[0]);
     } else {
-      console.error("DEBUG:", "WAIT FOR", this.goal.path[0]);
+      // console.error("DEBUG:", "WAIT FOR", this.goal.path[0]);
       to = pacman.getPosition();
       opt = "WAIT";
     }

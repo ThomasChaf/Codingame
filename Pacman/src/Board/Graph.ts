@@ -1,4 +1,5 @@
 import { Position, asKey } from "../Position";
+import { Distance } from "./Distance";
 
 export class GraphNode<T> {
   public key: string;
@@ -6,6 +7,7 @@ export class GraphNode<T> {
   public edges: string[] = [];
   public value: number = 1;
   public leaveMalus: number = 0;
+  public closestNode?: string;
   public meta: T | null = null;
 
   constructor(key: string, position: Position) {
@@ -40,7 +42,7 @@ type Todo = {
   nexts: string[];
 };
 
-type NodeStore<T> = {
+export type NodeStore<T> = {
   [k: string]: GraphNode<T>;
 };
 
@@ -52,10 +54,19 @@ type TraverseStep = {
 type TraverseCallback<T> = (depth: number, node: GraphNode<T>, keep: any, path: string[]) => TraverseStep;
 
 export class Graph<T> {
+  protected distance = new Distance();
   protected nodes: NodeStore<T> = {};
 
   get length(): number {
     return Object.keys(this.nodes).length;
+  }
+
+  precomputeDistance() {
+    this.distance.precomputeValues(this.nodes);
+  }
+
+  getDistance(p1: Position, p2: Position): number {
+    return this.distance.get(p1, p2);
   }
 
   addNode(pos: Position) {
@@ -86,10 +97,24 @@ export class Graph<T> {
         let prev: string = key;
         let next: string = this.nodes[key].edges[0];
         let malus = 2;
+        let closestNode = null;
+        while (!closestNode) {
+          if (this.nodes[next].edges.length > 2) {
+            closestNode = next;
+          } else {
+            this.nodes[next].leaveMalus = malus;
+
+            const nextEdge = this.nodes[next].edges.filter((k: string) => k !== prev)[0];
+            prev = next;
+            next = nextEdge;
+          }
+        }
+        prev = "";
+        next = key;
         while (1) {
           if (this.nodes[next].edges.length > 2) return;
-          this.nodes[next].leaveMalus = malus;
 
+          this.nodes[next].closestNode = closestNode;
           const nextEdge = this.nodes[next].edges.filter((k: string) => k !== prev)[0];
           prev = next;
           next = nextEdge;
@@ -99,7 +124,7 @@ export class Graph<T> {
   }
 
   traverse(start: Position, maxDepth: number, cb: TraverseCallback<T>) {
-    const done: Done = {};
+    const done: Done = { [start.asKey()]: true };
     let todos: Todo[] = [
       {
         path: [],

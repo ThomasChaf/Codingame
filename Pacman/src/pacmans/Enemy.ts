@@ -8,7 +8,9 @@ export class Enemy extends APacman {
       id: this.id,
       weapon: this.weapon,
       position: this.getPosition(),
-      abilityAvailable: this.abilityAvailable(),
+      isFast: this.fast > 0,
+      abilityCooldown: this.abilityCooldown,
+      abilityAvailable: this.abilityAvailable,
     };
   }
 

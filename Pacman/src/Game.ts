@@ -33,7 +33,12 @@ export class Game {
     fast: number,
     abilityCooldown: number
   ) => {
-    if (type === "DEAD") return;
+    if (type === "DEAD") {
+      if (!mine) {
+        this.myPacman.forEach((pacman: Pacman) => pacman.radar.reset(pacId));
+      }
+      return;
+    }
 
     const weapon = parseWeapon(type);
     const store = mine ? this.myPacman : this.enemies;
@@ -77,7 +82,7 @@ export class Game {
     this.enemies.forEach((pac) => pac.willPlay(this.graph));
 
     this.myPacman.forEach((pac) =>
-      pac.willPlay(this.graph, this.facilitator, this.pelletManager, this.score.complete())
+      pac.willPlay(this.graph, this.facilitator, this.pelletManager, this.score.complete(), this.enemies)
     );
   }
 

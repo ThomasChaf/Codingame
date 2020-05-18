@@ -36,11 +36,7 @@ export class Facilitator {
     const p1 = this.moves[key].getPosition();
     const p2 = pacman.getPosition();
 
-    console.error("DEBUG:", pacman.id, this.moves[key].id);
-
     if (sameDirection(p1, p2, goal)) {
-      console.error("DEBUG:", "SAME DIRECTION", "DONT WAIT");
-
       return false;
     }
 
