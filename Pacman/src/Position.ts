@@ -1,5 +1,3 @@
-import { Pacman } from "./pacmans/Pacman";
-
 export const asKey = (x: number, y: number) => `${x}-${y}`;
 
 export const DIRECTIONS = [
@@ -14,8 +12,6 @@ export const sameDirection = (p1: Position, p2: Position, goal: Position): boole
   const p1dirY = Math.sign(p1.y - goal.y);
   const p2dirX = Math.sign(p2.x - goal.x);
   const p2dirY = Math.sign(p2.y - goal.y);
-
-  console.error("DEBUG:", "SAME DIRE:", p1dirX, p2dirX, p1dirY, p2dirY);
 
   return p1dirX === p2dirX && p1dirY === p2dirY;
 };
