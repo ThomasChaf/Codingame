@@ -43,6 +43,9 @@ while (true) {
     if (actionType === "OPPONENT_CAST") {
       game.enemyCasts.add(actionId, gems, inputs[9] === "1");
     }
+    if (actionType === "LEARN") {
+      game.books.add(actionId, gems, parseInt(inputs[7]));
+    }
   }
   for (let i = 0; i < 2; i++) {
     var inputs: string[] = debugReadline().split(" ");
