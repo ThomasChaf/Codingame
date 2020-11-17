@@ -1,10 +1,10 @@
-import { Cast } from "./Cast";
-import { Casts, CastNullable } from "./Casts";
+import { Casts } from "./Casts";
 import { Receipts, ReceiptNullable } from "./Receipts";
-import { Books, BookNullable } from "./Books";
+import { Books } from "./Books";
 import { Store } from "./Store";
 import { ALL_COLOR } from "./utils";
 import { IGemmable } from "./interfaces/IGemmable";
+import { ActionNullable, IActionnable } from "./interfaces/IActionnable";
 
 export class Game {
   public receipts: Receipts = new Receipts();
@@ -27,40 +27,15 @@ export class Game {
     return ALL_COLOR.map((color) => this.myStore.at(color) + cast.at(color));
   }
 
-  findFastestBook(): BookNullable {
-    let fastestY = 0;
-    let fastestReceipt: ReceiptNullable = null;
-    let fastestBook: BookNullable = null;
-
-    this.books.books.forEach((book) => {
-      if (!book.isLearnable(this.myStore)) return;
-
-      const nextGems = this.computeNextGems(book);
-      const [nextReceipt, nextY] = this.receipts.findFastestReceipt(nextGems);
-      if (!nextReceipt) return;
-
-      if (
-        !fastestReceipt ||
-        nextY < fastestY ||
-        (nextY === fastestY && nextReceipt.price > fastestReceipt.price)
-      ) {
-        fastestY = nextY;
-        fastestReceipt = nextReceipt;
-        fastestBook = book;
-      }
-    });
-    return fastestBook;
-  }
-
-  findFastestCast(): CastNullable {
+  computePlay(path = [], deep = 0): [number, ActionNullable, ReceiptNullable] {
     let fastestZ = 0;
     let fastestReceipt: ReceiptNullable = null;
-    let fastestCast: CastNullable = null;
+    let fastestAction: ActionNullable = null;
 
-    this.myCasts.casts.forEach((cast) => {
-      if (!cast.isCastable(this.myStore)) return;
+    [...this.myCasts.casts, ...this.books.books].forEach((action: IActionnable) => {
+      if (!action.isActionnable(this.myStore)) return;
 
-      const nextGems = this.computeNextGems(cast);
+      const nextGems = this.computeNextGems(action);
       const [nextReceipt, nextZ] = this.receipts.findFastestReceipt(nextGems);
       if (!nextReceipt) return;
 
@@ -71,10 +46,11 @@ export class Game {
       ) {
         fastestZ = nextZ;
         fastestReceipt = nextReceipt;
-        fastestCast = cast;
+        fastestAction = action;
       }
     });
-    return fastestCast;
+
+    return [fastestZ, fastestAction, fastestReceipt];
   }
 
   play() {
@@ -82,17 +58,19 @@ export class Game {
 
     if (!receipt) {
       this.receipts.prePlay(this.myStore);
-      const book = this.findFastestBook();
-      if (!book) {
-        const spell = this.findFastestCast();
+      const [z, action, r2] = this.computePlay();
 
-        if (!spell || !spell.castable) {
-          console.log("REST");
-        } else {
-          console.log(`CAST ${spell.id}`);
-        }
+      if (!action) {
+        console.log("REST");
+        return;
+      }
+
+      if (action.type === "BOOK") {
+        console.log(`LEARN ${action.id}`);
+      } else if (action.type === "CAST" && action.actionable) {
+        console.log(`CAST ${action.id}`);
       } else {
-        console.log(`LEARN ${book.id}`);
+        console.log("REST");
       }
     } else {
       console.log(`BREW ${receipt.id}`);

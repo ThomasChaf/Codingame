@@ -1,4 +1,5 @@
-cat src/interfaces/*.ts > out-1.ts
+cat src/interfaces/IGemmable.ts > out-1.ts
+cat src/interfaces/IActionnable.ts >> out-1.ts
 
 cat src/*.ts >> out-1.ts
 

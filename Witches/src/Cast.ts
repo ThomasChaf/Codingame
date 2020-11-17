@@ -1,19 +1,20 @@
-import { IGemmable } from "./interfaces/IGemmable";
+import { IActionnable } from "./interfaces/IActionnable";
 import { Store } from "./Store";
 import { ALL_COLOR } from "./utils";
 
-export class Cast extends IGemmable {
+export class Cast extends IActionnable {
   public id: string;
-  public castable: boolean;
+  public type: string = "CAST";
+  public actionable: boolean;
 
-  constructor(id: string, castable: boolean, costs: number[]) {
+  constructor(id: string, actionable: boolean, costs: number[]) {
     super();
     this.id = id;
-    this.castable = castable;
+    this.actionable = actionable;
     this.set(costs);
   }
 
-  isCastable(store: Store): boolean {
+  isActionnable(store: Store): boolean {
     for (const color of ALL_COLOR) {
       if (store.at(color) + this.at(color) < 0) return false;
     }

@@ -48,5 +48,6 @@ export class Receipts {
     this.receipts.forEach((receipt) => {
       receipt.prePlay(myStore.getGems());
     });
+    this.receipts = this.receipts.sort((a, b) => b.price - a.price);
   }
 }
