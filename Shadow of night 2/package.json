@@ -1,20 +1,14 @@
 {
-  "name": "winamax",
+  "name": "shadow",
   "version": "1.0.0",
-  "description": "",
-  "main": "main.ts",
-  "dependencies": {
-    "ts-node": "^8.10.1",
-    "typescript": "^3.8.3"
-  },
+  "author": "Thomas Chafiol",
+  "license": "MIT",
+  "private": true,
   "scripts": {
-    "dev": "ts-node main.ts",
-    "build": "bash build.sh",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "bun run main.ts",
+    "build": "bash build.sh"
   },
-  "author": "thomaschaf@gmail.com",
-  "license": "ISC",
   "devDependencies": {
-    "@types/node": "^13.13.5"
+    "@types/node": "^20.10.6"
   }
 }
