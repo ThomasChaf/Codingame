@@ -1,0 +1,14 @@
+{
+  "name": "shadow",
+  "version": "1.0.0",
+  "author": "Thomas Chafiol",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "start": "bun run main.ts",
+    "build": "bash build.sh"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.6"
+  }
+}
